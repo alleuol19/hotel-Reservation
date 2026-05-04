@@ -18,6 +18,8 @@ public class AuthController {
 	static String url = "jdbc:mysql://mysql.railway.internal:3306/railway";
 	static String dbUser = "root";
 	static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
+	
+	
 
     @GetMapping("/")
     public String splash() {
