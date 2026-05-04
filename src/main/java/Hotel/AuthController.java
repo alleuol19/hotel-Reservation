@@ -330,6 +330,65 @@ public class AuthController {
         model.addAttribute("bookings", bookings);
         return "admin-bookings";
     }
+    
+    @GetMapping("/edit-booking")
+    public String editBooking(@RequestParam int id, Model model) {
+
+        Map<String, String> booking = new HashMap<>();
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+
+            String sql = "SELECT * FROM Bookings WHERE id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, id);
+
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                booking.put("id", rs.getString("id"));
+                booking.put("name", rs.getString("name"));
+                booking.put("roomType", rs.getString("roomType"));
+                booking.put("roomCapacity", rs.getString("roomCapacity"));
+                booking.put("checkIn", rs.getString("checkInDate"));
+                booking.put("checkOut", rs.getString("checkOutDate"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("booking", booking);
+        return "edit-booking";
+    }
+    
+    @PostMapping("/update-booking")
+    public String updateBooking(@RequestParam int id,
+                                @RequestParam String name,
+                                @RequestParam String roomType,
+                                @RequestParam String roomCapacity,
+                                @RequestParam String checkIn,
+                                @RequestParam String checkOut) {
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+
+            String sql = "UPDATE Bookings SET name=?, roomType=?, roomCapacity=?, checkInDate=?, checkOutDate=? WHERE id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setString(1, name);
+            pst.setString(2, roomType);
+            pst.setString(3, roomCapacity);
+            pst.setString(4, checkIn);
+            pst.setString(5, checkOut);
+            pst.setInt(6, id);
+
+            pst.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/admin-bookings";
+    }
 
     @GetMapping("/admin-rooms")
     public String adminRooms(HttpSession session, Model model) {
@@ -360,6 +419,20 @@ public class AuthController {
         model.addAttribute("rooms", rooms);
 
         return "admin-rooms";
+    }
+    
+    @PostMapping("/delete-room")
+    public String deleteRoom(@RequestParam int id) {
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+            String sql = "DELETE FROM Rooms WHERE id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, id);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/admin-rooms";
     }
 
     @GetMapping("/reserved-rooms")
