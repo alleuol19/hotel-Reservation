@@ -11,91 +11,111 @@
         }
 
         .window {
-            width: 400px;
-            height: 420px;
-            margin: 30px auto;
-            background: rgb(23, 35, 51);
-            position: relative;
-        }
+    width: 430px;
+    min-height: 500px;
+    margin: 25px auto;
+    background: rgb(23, 35, 51);
+    position: relative;
+    padding-top: 30px;
+    color: white;
+}
 
         .title {
-            position: absolute;
-            top: 30px;
-            width: 100%;
             text-align: center;
-            color: white;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
+            margin-bottom: 25px;
         }
 
         label {
-            position: absolute;
-            left: 90px;
-            color: white;
+            display: block;
+            margin-left: 90px;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+        input {
+            display: block;
+            margin-left: 90px;
+            width: 240px;
+            height: 32px;
+            padding-left: 8px;
+            box-sizing: border-box;
+        }
+
+        .privacy-box {
+    width: 310px;
+    height: 105px;
+    margin: 25px auto 10px auto;
+    padding: 12px;
+    border: 2px solid white;
+    background: #223247;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: justify;
+    overflow-y: scroll;
+}
+
+        .choices {
+            width: 310px;
+            margin: 10px auto;
             font-size: 13px;
         }
 
-        .user-label { top: 80px; }
-        .pass-label { top: 150px; }
-
-        input {
-            position: absolute;
-            left: 90px;
-            width: 220px;
-            height: 30px;
-            padding-left: 8px;
+        .choice {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            cursor: pointer;
         }
 
-        .user-input { top: 100px; }
-        .pass-input { top: 170px; }
+        .circle {
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circle.selected::after {
+            content: "";
+            width: 9px;
+            height: 9px;
+            background: limegreen;
+            border-radius: 50%;
+        }
 
         button {
-    position: absolute;
-    top: 240px;
-    left: 90px;
-    width: 220px;
-    height: 40px;
-    cursor: pointer;
-    font-weight: bold;
-
-    z-index: 1;   /* keep button below link */
-}
+            display: block;
+            margin: 20px auto 0 auto;
+            width: 240px;
+            height: 40px;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
         .login {
-    position: absolute;
-    top: 300px;
-    left: 70px;
-    width: 260px;
-    text-align: center;
-    color: white;
-    font-size: 13px;
-    text-decoration: none;
-
-    z-index: 999;        /* bring to front */
-    cursor: pointer;     /* show clickable */
-}
-        
-        .signup, .login {
-    z-index: 10;
-    display: block;
-}
-
-.signup span, .login span {
-    color: cyan;
-    text-decoration: underline;
-}
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+            font-size: 13px;
+            text-decoration: none;
+        }
 
         .login span {
             color: cyan;
+            text-decoration: underline;
         }
 
         .message {
-            position: absolute;
-            top: 335px;
-            width: 100%;
             text-align: center;
             color: red;
             font-size: 13px;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -106,25 +126,79 @@
 
     <div class="title">SIGN UP</div>
 
-    <!-- ✅ IMPORTANT: use th:action -->
-    <form th:action="@{/signup}" method="post">
-        <label class="user-label">Choose Username:</label>
-        <input class="user-input" type="text" name="username" required>
+    <form th:action="@{/signup}" method="post" onsubmit="return checkAgreement(event)">
+        <label>Choose Username:</label>
+        <input type="text" name="username" required>
 
-        <label class="pass-label">Choose Password:</label>
-        <input class="pass-input" type="password" name="password" required>
+        <label>Choose Password:</label>
+        <input type="password" name="password" required>
+
+        <div class="privacy-box">
+            By creating an account, you agree to provide accurate information for the hotel reservation system.
+            Your personal data will be used only for account registration, booking records, and system purposes.
+            In accordance with the Data Privacy Act, your information will be kept confidential and will not be shared
+            without proper consent, except when required by law.
+        </div>
+
+        <div class="choices">
+            <div class="choice" onclick="chooseAgreement('agree')">
+                <span id="agreeCircle" class="circle"></span>
+                <span>I agree to the account agreement and data privacy notice.</span>
+            </div>
+
+            <div class="choice" onclick="chooseAgreement('disagree')">
+                <span id="disagreeCircle" class="circle"></span>
+                <span>I disagree.</span>
+            </div>
+        </div>
+
+        <input type="hidden" id="agreement" name="agreement">
 
         <button type="submit">CREATE ACCOUNT</button>
     </form>
 
-    <a class="login" href="/login">
-    Already have an account? <span>Login</span>
-</a>
+    <a class="login" th:href="@{/login}">
+        Already have an account? <span>Login</span>
+    </a>
 
-    <!-- ✅ show message only if exists -->
     <p class="message" th:if="${message}" th:text="${message}"></p>
 
 </div>
+
+<script>
+    let selectedAgreement = "";
+
+    function chooseAgreement(choice) {
+        selectedAgreement = choice;
+        document.getElementById("agreement").value = choice;
+
+        document.getElementById("agreeCircle").classList.remove("selected");
+        document.getElementById("disagreeCircle").classList.remove("selected");
+
+        if (choice === "agree") {
+            document.getElementById("agreeCircle").classList.add("selected");
+        } else {
+            document.getElementById("disagreeCircle").classList.add("selected");
+
+            alert("You disagreed with the account agreement. You will be returned to the splash page.");
+            window.location.href = "/";
+        }
+    }
+
+    function checkAgreement(event) {
+        if (selectedAgreement === "") {
+            alert("You need to choose Agree or Disagree before creating an account.");
+            return false;
+        }
+
+        if (selectedAgreement === "disagree") {
+            window.location.href = "/";
+            return false;
+        }
+
+        return confirm("Are you sure you want to continue creating this account?");
+    }
+</script>
 
 </body>
 </html>
