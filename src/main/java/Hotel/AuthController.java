@@ -125,11 +125,22 @@ public class AuthController {
         int reservedRooms = 0;
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-            ResultSet totalRs = conn.prepareStatement("SELECT COUNT(*) FROM Rooms").executeQuery();
-            if (totalRs.next()) totalRooms = totalRs.getInt(1);
 
-            ResultSet availableRs = conn.prepareStatement("SELECT COUNT(*) FROM Rooms WHERE isAvailable = true").executeQuery();
-            if (availableRs.next()) availableRooms = availableRs.getInt(1);
+            String totalSql = "SELECT COUNT(*) FROM Rooms";
+            PreparedStatement totalPst = conn.prepareStatement(totalSql);
+            ResultSet totalRs = totalPst.executeQuery();
+
+            if (totalRs.next()) {
+                totalRooms = totalRs.getInt(1);
+            }
+
+            String availableSql = "SELECT COUNT(*) FROM Rooms WHERE isAvailable = 1";
+            PreparedStatement availablePst = conn.prepareStatement(availableSql);
+            ResultSet availableRs = availablePst.executeQuery();
+
+            if (availableRs.next()) {
+                availableRooms = availableRs.getInt(1);
+            }
 
             reservedRooms = totalRooms - availableRooms;
 
@@ -146,6 +157,7 @@ public class AuthController {
         }
 
         model.addAttribute("username", session.getAttribute("username"));
+        model.addAttribute("totalRooms", totalRooms);
         model.addAttribute("availableRooms", availableRooms);
         model.addAttribute("reservedRooms", reservedRooms);
         model.addAttribute("availablePercent", availablePercent);

@@ -1,10 +1,198 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <title>Admin Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f4f4f4;
+        }
+
+        .top {
+            height: 125px;
+            background: rgb(23, 35, 51);
+            color: white;
+            position: relative;
+        }
+
+        .logo {
+            position: absolute;
+            left: 35px;
+            top: 40px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .settings {
+            position: absolute;
+            right: 40px;
+            top: 45px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .side {
+            position: absolute;
+            top: 125px;
+            left: 0;
+            width: 170px;
+            height: calc(100vh - 125px);
+            background: #8ec9f5;
+            border-right: 2px solid #1e293b;
+        }
+
+        .circle-box {
+            margin: 35px 12px;
+            padding: 15px;
+            border: 2px solid #1e293b;
+            background: #bde3ff;
+            text-align: center;
+        }
+
+        .circle {
+            width: 80px;
+            height: 80px;
+            background: #0ea5e9;
+            border-radius: 50%;
+            margin: auto;
+        }
+
+        .circle.reserved {
+            background: white;
+        }
+
+        .circle-box p {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .circle-box button {
+            width: 120px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .logout {
+            display: block;
+            margin-left: 35px;
+            margin-top: 25px;
+            font-size: 18px;
+            color: #1e293b;
+            text-decoration: none;
+        }
+
+        .main {
+            margin-left: 170px;
+            padding-top: 70px;
+            position: relative;
+        }
+
+        .home-title {
+            position: absolute;
+            top: -45px;
+            left: 190px;
+            width: 330px;
+            height: 70px;
+            background: #8ec9f5;
+            border: 4px solid #1e293b;
+            box-shadow: 3px 3px 5px gray;
+            text-align: center;
+            line-height: 70px;
+            font-size: 34px;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 240px);
+            gap: 60px 60px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .grid a {
+            width: 240px;
+            text-decoration: none;
+        }
+
+        .card {
+            width: 240px;
+            height: 160px;
+            background: #8ec9f5;
+            box-shadow: 3px 3px 8px gray;
+            border: none;
+            font-size: 27px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            background: #7dbbe8;
+        }
+
+        .icon {
+            display: block;
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+    </style>
 </head>
+
 <body>
+
+<div class="top">
+    <div class="logo">PLAZA HOTEL</div>
+    <div class="settings">⚙ Settings</div>
+</div>
+
+<div class="side">
+
+    <div class="circle-box">
+        <div class="circle"></div>
+        <p th:text="${availablePercent + '%'}">0%</p>
+        <button th:text="${availableRooms + ' Available Rooms'}">Available Rooms</button>
+    </div>
+
+    <div class="circle-box">
+        <div class="circle reserved"></div>
+        <p th:text="${reservedPercent + '%'}">0%</p>
+
+        <a th:href="@{/reserved-rooms}">
+            <button th:text="${reservedRooms + ' Reserved Rooms'}">Reserved Rooms</button>
+        </a>
+    </div>
+
+    <a class="logout" th:href="@{/login}">🔴 Log Out</a>
+</div>
+
+<div class="main">
+    <div class="home-title">Admin Page</div>
+
+    <div class="grid">
+        <a th:href="@{/admin-bookings}">
+            <button class="card"><span class="icon">📋</span>All Bookings</button>
+        </a>
+
+        <a th:href="@{/admin-rooms}">
+            <button class="card"><span class="icon">🛏️</span>Rooms</button>
+        </a>
+
+        <a th:href="@{/admin-guests}">
+            <button class="card"><span class="icon">👥</span>Guests</button>
+        </a>
+
+        <a th:href="@{/admin-feedback}">
+            <button class="card"><span class="icon">💬</span>User Feedback</button>
+        </a>
+    </div>
+</div>
 
 </body>
 </html>
