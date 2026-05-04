@@ -1,2 +1,2 @@
-com\example\hotel\AuthController.class
-com\example\hotel\HotelReservationAppApplication.class
+Hotel\HotelReservationAppApplication.class
+Hotel\AuthController.class
