@@ -24,11 +24,6 @@ public class AuthController {
         return "splash";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
-
     @PostMapping("/login")
     public String loginProcess(@RequestParam String username,
                                @RequestParam String password,
@@ -36,25 +31,39 @@ public class AuthController {
                                Model model) {
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-            String sql = "SELECT * FROM Users WHERE username=? AND password=?";
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setString(1, username);
-            pst.setString(2, password);
 
-            ResultSet rs = pst.executeQuery();
+            // 1. CHECK ADMIN TABLE FIRST
+            String adminSql = "SELECT * FROM Admin WHERE username=? AND password=?";
+            PreparedStatement adminPst = conn.prepareStatement(adminSql);
+            adminPst.setString(1, username);
+            adminPst.setString(2, password);
 
-            if (rs.next()) {
-                String role = rs.getString("role");
-                session.setAttribute("username", rs.getString("username"));
+            ResultSet adminRs = adminPst.executeQuery();
 
-                if ("Admin".equalsIgnoreCase(role)) {
-                    return "redirect:/admin-dashboard";
-                } else {
-                    return "redirect:/user-dashboard";
-                }
+            if (adminRs.next()) {
+                session.setAttribute("username", adminRs.getString("username"));
+                session.setAttribute("role", "Admin");
+
+                return "redirect:/admin-dashboard";
             }
 
-            model.addAttribute("error", "Invalid credentials!");
+            // 2. CHECK USERS TABLE NEXT
+            String userSql = "SELECT * FROM Users WHERE username=? AND password=?";
+            PreparedStatement userPst = conn.prepareStatement(userSql);
+            userPst.setString(1, username);
+            userPst.setString(2, password);
+
+            ResultSet userRs = userPst.executeQuery();
+
+            if (userRs.next()) {
+                session.setAttribute("username", userRs.getString("username"));
+                session.setAttribute("role", "User");
+
+                return "redirect:/user-dashboard";
+            }
+
+            // 3. IF BOTH NOT FOUND
+            model.addAttribute("error", "Invalid username or password!");
             return "login";
 
         } catch (Exception e) {
