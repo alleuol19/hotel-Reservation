@@ -1,4 +1,4 @@
-package com.example.hotel;
+package Hotel;
 
 
 import java.sql.*;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class AuthController {
 
-	static String url = System.getenv("mysql://root:HUMUeVXnKdlhsHllvEQqxWZKErmocAhV@switchyard.proxy.rlwy.net:27217/railway"); // or MYSQL_PUBLIC_URL
+	static String url = System.getenv("mysql://root:HUMUeVXnKdlhsHllvEQqxWZKErmocAhV@switchyard.proxy.rlwy.net:27217/railway");
 	static String dbUser = System.getenv("root");
 	static String dbPass = System.getenv("HUMUeVXnKdlhsHllvEQqxWZKErmocAhV");
 
