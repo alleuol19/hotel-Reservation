@@ -62,20 +62,22 @@
         }
 
         .signup {
-            position: absolute;
-            top: 340px;
-            left: 70px;
-            width: 260px;
-            text-align: center;
-            color: white;
-            font-size: 13px;
-            text-decoration: none;
-        }
-
+    position: absolute;
+    top: 340px;
+    left: 70px;
+    width: 260px;
+    text-align: center;
+    color: white;
+    font-size: 13px;
+    text-decoration: none;
+    z-index: 10;              
+    cursor: pointer;          
+}
         .signup span {
-            color: cyan;
-        }
-
+    color: cyan;
+    text-decoration: underline;
+}
+        
         .error {
             position: absolute;
             top: 375px;
@@ -103,9 +105,9 @@
         <button type="submit">LOGIN</button>
     </form>
 
-    <a class="signup" th:href="@{/signup}">
-        Don't have an account? <span>Sign Up</span>
-    </a>
+    <a class="signup" href="/signup">
+    Don't have an account? <span>Sign Up</span>
+</a>
 
     <p class="error" th:if="${error}" th:text="${error}"></p>
 

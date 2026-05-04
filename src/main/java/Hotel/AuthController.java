@@ -24,6 +24,13 @@ public class AuthController {
         return "splash";
     }
 
+ // LOGIN PAGE
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+    // LOGIN PROCESS (Admin + User)
     @PostMapping("/login")
     public String loginProcess(@RequestParam String username,
                                @RequestParam String password,
@@ -32,37 +39,33 @@ public class AuthController {
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
 
-            // 1. CHECK ADMIN TABLE FIRST
+            // 🔴 CHECK ADMIN TABLE
             String adminSql = "SELECT * FROM Admin WHERE username=? AND password=?";
             PreparedStatement adminPst = conn.prepareStatement(adminSql);
             adminPst.setString(1, username);
             adminPst.setString(2, password);
-
             ResultSet adminRs = adminPst.executeQuery();
 
             if (adminRs.next()) {
-                session.setAttribute("username", adminRs.getString("username"));
+                session.setAttribute("username", username);
                 session.setAttribute("role", "Admin");
-
                 return "redirect:/admin-dashboard";
             }
 
-            // 2. CHECK USERS TABLE NEXT
+            // 🔵 CHECK USERS TABLE
             String userSql = "SELECT * FROM Users WHERE username=? AND password=?";
             PreparedStatement userPst = conn.prepareStatement(userSql);
             userPst.setString(1, username);
             userPst.setString(2, password);
-
             ResultSet userRs = userPst.executeQuery();
 
             if (userRs.next()) {
-                session.setAttribute("username", userRs.getString("username"));
+                session.setAttribute("username", username);
                 session.setAttribute("role", "User");
-
                 return "redirect:/user-dashboard";
             }
 
-            // 3. IF BOTH NOT FOUND
+            // ❌ IF NOT FOUND
             model.addAttribute("error", "Invalid username or password!");
             return "login";
 
@@ -72,19 +75,34 @@ public class AuthController {
         }
     }
 
+ // SIGNUP PAGE
     @GetMapping("/signup")
     public String signupPage() {
         return "signup";
     }
 
+    // SIGNUP PROCESS
     @PostMapping("/signup")
     public String signupProcess(@RequestParam String username,
                                 @RequestParam String password,
                                 Model model) {
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-            String sql = "INSERT INTO Users (username, password, role) VALUES (?, ?, 'User')";
-            PreparedStatement pst = conn.prepareStatement(sql);
+
+            // CHECK IF USERNAME EXISTS
+            String checkSql = "SELECT * FROM Users WHERE username=?";
+            PreparedStatement checkPst = conn.prepareStatement(checkSql);
+            checkPst.setString(1, username);
+            ResultSet checkRs = checkPst.executeQuery();
+
+            if (checkRs.next()) {
+                model.addAttribute("message", "Username already exists!");
+                return "signup";
+            }
+
+            // INSERT NEW USER
+            String insertSql = "INSERT INTO Users (username, password, role) VALUES (?, ?, 'User')";
+            PreparedStatement pst = conn.prepareStatement(insertSql);
             pst.setString(1, username);
             pst.setString(2, password);
             pst.executeUpdate();
@@ -92,7 +110,7 @@ public class AuthController {
             return "redirect:/login";
 
         } catch (Exception e) {
-            model.addAttribute("message", "Error: " + e.getMessage());
+            model.addAttribute("message", "Database error: " + e.getMessage());
             return "signup";
         }
     }

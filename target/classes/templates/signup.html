@@ -69,6 +69,16 @@
             font-size: 13px;
             text-decoration: none;
         }
+        
+        .signup, .login {
+    z-index: 10;
+    display: block;
+}
+
+.signup span, .login span {
+    color: cyan;
+    text-decoration: underline;
+}
 
         .login span {
             color: cyan;
@@ -102,10 +112,9 @@
         <button type="submit">CREATE ACCOUNT</button>
     </form>
 
-    <!-- ✅ use th:href -->
-    <a class="login" th:href="@{/login}">
-        Already have an account? <span>Login</span>
-    </a>
+    <a class="login" href="/login">
+    Already have an account? <span>Login</span>
+</a>
 
     <!-- ✅ show message only if exists -->
     <p class="message" th:if="${message}" th:text="${message}"></p>
