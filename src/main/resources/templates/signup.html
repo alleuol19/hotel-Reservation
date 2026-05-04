@@ -12,7 +12,7 @@
 
         .window {
     width: 430px;
-    min-height: 500px;
+    min-height: 450px;
     margin: 25px auto;
     background: rgb(23, 35, 51);
     position: relative;
@@ -98,18 +98,19 @@
         }
 
         .login {
-            display: block;
-            margin-top: 20px;
-            text-align: center;
-            color: white;
-            font-size: 13px;
-            text-decoration: none;
-        }
+    display: block;
+    margin-top: 20px;
+    text-align: center;
+    color: white;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-        .login span {
-            color: cyan;
-            text-decoration: underline;
-        }
+.login span {
+    color: cyan;
+    text-decoration: underline;
+}
 
         .message {
             text-align: center;
@@ -158,8 +159,8 @@
     </form>
 
     <a class="login" th:href="@{/login}">
-        Already have an account? <span>Login</span>
-    </a>
+    Already have an account? <span>Login</span>
+</a>
 
     <p class="message" th:if="${message}" th:text="${message}"></p>
 
