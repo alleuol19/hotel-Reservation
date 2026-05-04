@@ -61,11 +61,20 @@
             text-align: center;
         }
 
+        .edit-btn {
+            background: orange;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
         .delete-btn {
             background: red;
             color: white;
             border: none;
-            padding: 6px 15px;
+            padding: 6px 10px;
             cursor: pointer;
             border-radius: 5px;
         }
@@ -98,6 +107,7 @@
     <table>
         <thead>
             <tr>
+                <th>#</th>
                 <th>User</th>
                 <th>Name</th>
                 <th>Room Type</th>
@@ -110,7 +120,10 @@
         </thead>
 
         <tbody>
-            <tr th:each="b : ${bookings}">
+            <tr th:each="b, iter : ${bookings}">
+                <!-- AUTO NUMBER -->
+                <td th:text="${iter.count}"></td>
+
                 <td th:text="${b.username}"></td>
                 <td th:text="${b.name}"></td>
                 <td th:text="${b.roomType}"></td>
@@ -120,24 +133,20 @@
                 <td th:text="${b.roomId}"></td>
 
                 <td>
-                    <td>
-    <!-- EDIT BUTTON -->
-    <a th:href="@{/edit-booking(id=${b.id})}">
-        <button style="background: orange; color: white; border: none; padding: 6px 10px; cursor: pointer;">
-            Edit
-        </button>
-    </a>
+                    <!-- EDIT -->
+                    <a th:href="@{/edit-booking(id=${b.id})}">
+                        <button class="edit-btn">Edit</button>
+                    </a>
 
-    <!-- DELETE BUTTON -->
-    <form th:action="@{/cancel-booking}" method="post" style="display:inline;">
-        <input type="hidden" name="id" th:value="${b.id}">
-        <button class="delete-btn"
-            onclick="return confirm('Delete this booking?')">
-            Delete
-        </button>
-    </form>
-</td>
-                
+                    <!-- DELETE -->
+                    <form th:action="@{/cancel-booking}" method="post" style="display:inline;">
+                        <input type="hidden" name="id" th:value="${b.id}">
+                        <button class="delete-btn"
+                            onclick="return confirm('Delete this booking?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
             </tr>
         </tbody>
     </table>

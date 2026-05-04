@@ -32,10 +32,15 @@
             font-size: 18px;
             font-weight: bold;
             text-align: center;
+            z-index: 999;
         }
 
-        .user a {
+        .logout-link {
             color: white;
+            text-decoration: underline;
+            cursor: pointer;
+            position: relative;
+            z-index: 1000;
         }
 
         .main {
@@ -54,6 +59,20 @@
             font-weight: bold;
             font-style: italic;
             margin: -35px auto 25px auto;
+        }
+
+        .search-box {
+            width: 95%;
+            margin: 0 auto 20px auto;
+            text-align: right;
+        }
+
+        .search-box input {
+            width: 280px;
+            height: 35px;
+            padding-left: 10px;
+            border: 2px solid #1e293b;
+            font-size: 14px;
         }
 
         table {
@@ -100,14 +119,18 @@
         }
 
         .back {
-            display: block;
-            margin: 25px auto;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: #1e293b;
-            text-decoration: none;
-        }
+    display: block;
+    width: fit-content;
+    margin: 25px auto;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #1e293b;
+    text-decoration: none;
+    position: relative;
+    z-index: 999;
+    cursor: pointer;
+}
     </style>
 </head>
 
@@ -118,50 +141,74 @@
 
     <div class="user">
         👤 <span th:text="${username}">Admin</span><br>
-        <a th:href="@{/login}">Log Out</a>
+        <a class="logout-link" th:href="@{/login}">Log Out</a>
     </div>
 </div>
 
 <div class="main">
     <div class="title">Rooms</div>
 
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search room..." onkeyup="searchTable()">
+    </div>
+
     <table>
-        <tr>
-            <th>ID</th>
-            <th>Room Type</th>
-            <th>Room Capacity</th>
-            <th>Check-in Date</th>
-            <th>Check-out Date</th>
-            <th>Available?</th>
-            <th>Action</th>
-        </tr>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Room Type</th>
+                <th>Room Capacity</th>
+                <th>Check-in Date</th>
+                <th>Check-out Date</th>
+                <th>Available?</th>
+                <th>Action</th>
+            </tr>
+        </thead>
 
-        <tr th:each="r : ${rooms}">
-            <td th:text="${r.id}"></td>
-            <td th:text="${r.roomType}"></td>
-            <td th:text="${r.roomCapacity}"></td>
-            <td th:text="${r.checkInDate}"></td>
-            <td th:text="${r.checkOutDate}"></td>
-            <td th:text="${r.available}"></td>
+        <tbody>
+    <tr th:if="${#lists.isEmpty(rooms)}">
+        <td colspan="7">No rooms found.</td>
+    </tr>
 
-            <td>
-                <a th:href="@{/edit-room(id=${r.id})}">
-                    <button class="edit-btn">Edit</button>
-                </a>
+    <tr th:each="r, iter : ${rooms}">
+        <td th:text="${iter.count}"></td>
+        <td th:text="${r.roomType}"></td>
+        <td th:text="${r.roomCapacity}"></td>
+        <td th:text="${r.checkInDate}"></td>
+        <td th:text="${r.checkOutDate}"></td>
+        <td th:text="${r.available}"></td>
 
-                <form th:action="@{/delete-room}" method="post" style="display:inline;">
-                    <input type="hidden" name="id" th:value="${r.id}">
-                    <button type="submit" class="delete-btn"
-                            onclick="return confirm('Delete this room from database?')">
-                        Delete
-                    </button>
-                </form>
-            </td>
-        </tr>
+        <td>
+            <a th:href="@{/edit-room(id=${r.id})}">
+                <button class="edit-btn">Edit</button>
+            </a>
+
+            <form th:action="@{/delete-room}" method="post" style="display:inline;">
+                <input type="hidden" name="id" th:value="${r.id}">
+                <button type="submit" class="delete-btn"
+                        onclick="return confirm('Delete this room from database?')">
+                    Delete
+                </button>
+            </form>
+        </td>
+    </tr>
+</tbody>
     </table>
 
     <a class="back" th:href="@{/admin-dashboard}">‹ Back</a>
 </div>
+
+<script>
+function searchTable() {
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+        let text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? "" : "none";
+    });
+}
+</script>
 
 </body>
 </html>
