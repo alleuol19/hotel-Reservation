@@ -1,95 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Plaza Hotel</title>
 
     <style>
         body {
             margin: 0;
-            background: white;
             font-family: "Segoe UI", Arial, sans-serif;
         }
 
-        .splash {
-            width: 600px;
-            height: 400px;
-            margin: 40px auto;
-            background: rgb(23, 35, 51);
+        .hero {
+            width: 100%;
+            height: 100vh;
+            background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+                              url("/images/splash-bg.jpg");
+            background-size: cover;
+            background-position: center;
             position: relative;
+            color: white;
         }
 
-        h1 {
+        .nav {
             position: absolute;
-            top: 120px;
-            left: 50px;
-            width: 500px;
+            top: 40px;
+            right: 70px;
+        }
+
+        .nav a {
             color: white;
+            text-decoration: none;
+            margin-left: 35px;
+            font-size: 20px;
+        }
+
+        .center-text {
+            position: absolute;
+            top: 28%;
+            width: 100%;
             text-align: center;
-            font-size: 22px;
         }
 
-        .loading-text {
+        .welcome {
+            font-size: 70px;
+            font-family: Georgia, serif;
+            font-weight: bold;
+        }
+
+        .luxury {
+            font-size: 70px;
+            font-family: Georgia, serif;
+            color: #d4b36a;
+            margin-top: 15px;
+        }
+
+        .hotel-name {
             position: absolute;
-            top: 290px;
-            left: 50px;
+            left: 80px;
+            bottom: 170px;
+            font-size: 38px;
+            font-family: Georgia, serif;
+            letter-spacing: 3px;
+            color: #d8c9a2;
+        }
+
+        .btn {
+            position: absolute;
+            left: 50%;
+            bottom: 150px;
+            transform: translateX(-50%);
+            background: rgba(4, 42, 87, 0.9);
             color: white;
-            font-size: 14px;
+            padding: 25px 60px;
+            text-decoration: none;
+            font-size: 28px;
+            font-family: Georgia, serif;
+            font-weight: bold;
         }
 
-        .bar-bg {
-            position: absolute;
-            top: 310px;
-            left: 50px;
-            width: 500px;
-            height: 15px;
-            background: white;
-        }
-
-        .bar-fill {
-            width: 0%;
-            height: 100%;
-            background: rgb(46, 204, 113);
-        }
-
-        .percent {
-            position: absolute;
-            top: 330px;
-            left: 285px;
-            color: white;
-            font-size: 14px;
+        .btn:hover {
+            background: #123f75;
         }
     </style>
 </head>
 
 <body>
 
-<div class="splash">
-    <h1>Welcome to Hotel Reservation System</h1>
+<div class="hero">
 
-    <div class="loading-text">Loading modules...</div>
-
-    <div class="bar-bg">
-        <div class="bar-fill" id="bar"></div>
+    <div class="nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/login}">Rooms & Suites</a>
+        <a href="#">About Us</a>
+        <a href="#">Contact</a>
     </div>
 
-    <div class="percent" id="percent">0%</div>
+    <div class="center-text">
+        <div class="welcome">WELCOME TO</div>
+        <div class="luxury">Pure Luxury & Comfort</div>
+    </div>
+
+    <a class="btn" th:href="@{/login}">LOG IN</a>
+
 </div>
-
-<script>
-    let i = 0;
-
-    let loading = setInterval(function () {
-        document.getElementById("percent").innerText = i + "%";
-        document.getElementById("bar").style.width = i + "%";
-
-        if (i >= 100) {
-            clearInterval(loading);
-            window.location.href = "/login";
-        }
-
-        i++;
-    }, 40);
-</script>
 
 </body>
 </html>

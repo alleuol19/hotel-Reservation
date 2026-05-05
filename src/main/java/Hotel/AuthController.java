@@ -21,10 +21,24 @@ public class AuthController {
 	
 	
 
-    @GetMapping("/")
-    public String splash() {
-        return "splash";
-    }
+	@GetMapping("/")
+	public String splash(HttpSession session) {
+
+	    String username = (String) session.getAttribute("username");
+	    String role = (String) session.getAttribute("role");
+
+
+	    if (username != null) {
+	        if ("Admin".equalsIgnoreCase(role)) {
+	            return "redirect:/admin-dashboard";
+	        } else {
+	            return "redirect:/user-dashboard";
+	        }
+	    }
+
+
+	    return "splash";
+	}
 
     @GetMapping("/login")
     public String login() {
