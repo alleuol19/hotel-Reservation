@@ -191,7 +191,35 @@ public class AuthController {
 
     @GetMapping("/book-room")
     public String bookRoomPage(HttpSession session, Model model) {
-        model.addAttribute("username", session.getAttribute("username"));
+
+        String username = (String) session.getAttribute("username");
+
+        if (username == null) {
+            return "redirect:/login";
+        }
+
+        List<Map<String, String>> availableRooms = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+            String sql = "SELECT * FROM Rooms WHERE isAvailable = 1";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                Map<String, String> row = new HashMap<>();
+                row.put("id", rs.getString("id"));
+                row.put("roomType", rs.getString("roomType"));
+                row.put("roomCapacity", rs.getString("roomCapacity"));
+                availableRooms.add(row);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("username", username);
+        model.addAttribute("availableRooms", availableRooms);
+
         return "book-room";
     }
 
@@ -451,6 +479,96 @@ public class AuthController {
 
         return "redirect:/admin-rooms";
     }
+    
+    @GetMapping("/admin-feedback")
+    public String adminFeedback(Model model) {
+
+        List<Map<String, String>> feedbacks = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+            String sql = "SELECT * FROM Feedback";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                Map<String, String> row = new HashMap<>();
+                row.put("id", rs.getString("id"));
+                row.put("username", rs.getString("username"));
+                row.put("name", rs.getString("name"));
+                row.put("rating", rs.getString("rating"));
+                row.put("message", rs.getString("message"));
+                feedbacks.add(row);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("feedbacks", feedbacks);
+        return "admin-feedback";
+    }
+
+    @PostMapping("/delete-feedback")
+    public String deleteFeedback(@RequestParam int id) {
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+            String sql = "DELETE FROM Feedback WHERE id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, id);
+            pst.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/admin-feedback";
+    }
+
+    @GetMapping("/admin-guests")
+    public String adminGuests(HttpSession session, Model model) {
+
+        List<Map<String, String>> guests = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+
+            String sql = "SELECT id, username, name, phone, email FROM Bookings";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                Map<String, String> row = new HashMap<>();
+                row.put("id", rs.getString("id"));
+                row.put("username", rs.getString("username"));
+                row.put("name", rs.getString("name"));
+                row.put("phone", rs.getString("phone"));
+                row.put("email", rs.getString("email"));
+
+                guests.add(row);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("username", session.getAttribute("username"));
+        model.addAttribute("guests", guests);
+
+        return "admin-guests";
+    }
+
+    @PostMapping("/delete-guest")
+    public String deleteGuest(@RequestParam int id) {
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+            String sql = "DELETE FROM Bookings WHERE id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, id);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/admin-guests";
+    }
 
     @GetMapping("/reserved-rooms")
     public String reservedRooms(HttpSession session, Model model) {
@@ -515,93 +633,5 @@ public class AuthController {
     }
 
 
-@GetMapping("/admin-feedback")
-public String adminFeedback(Model model) {
 
-    List<Map<String, String>> feedbacks = new ArrayList<>();
-
-    try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-        String sql = "SELECT * FROM Feedback";
-        PreparedStatement pst = conn.prepareStatement(sql);
-        ResultSet rs = pst.executeQuery();
-
-        while (rs.next()) {
-            Map<String, String> row = new HashMap<>();
-            row.put("id", rs.getString("id"));
-            row.put("username", rs.getString("username"));
-            row.put("name", rs.getString("name"));
-            row.put("rating", rs.getString("rating"));
-            row.put("message", rs.getString("message"));
-            feedbacks.add(row);
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    model.addAttribute("feedbacks", feedbacks);
-    return "admin-feedback";
-}
-
-@PostMapping("/delete-feedback")
-public String deleteFeedback(@RequestParam int id) {
-
-    try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-        String sql = "DELETE FROM Feedback WHERE id=?";
-        PreparedStatement pst = conn.prepareStatement(sql);
-        pst.setInt(1, id);
-        pst.executeUpdate();
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    return "redirect:/admin-feedback";
-}
-
-@GetMapping("/admin-guests")
-public String adminGuests(HttpSession session, Model model) {
-
-    List<Map<String, String>> guests = new ArrayList<>();
-
-    try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-
-        String sql = "SELECT id, username, name, phone, email FROM Bookings";
-        PreparedStatement pst = conn.prepareStatement(sql);
-        ResultSet rs = pst.executeQuery();
-
-        while (rs.next()) {
-            Map<String, String> row = new HashMap<>();
-            row.put("id", rs.getString("id"));
-            row.put("username", rs.getString("username"));
-            row.put("name", rs.getString("name"));
-            row.put("phone", rs.getString("phone"));
-            row.put("email", rs.getString("email"));
-
-            guests.add(row);
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    model.addAttribute("username", session.getAttribute("username"));
-    model.addAttribute("guests", guests);
-
-    return "admin-guests";
-}
-
-@PostMapping("/delete-guest")
-public String deleteGuest(@RequestParam int id) {
-    try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-        String sql = "DELETE FROM Bookings WHERE id=?";
-        PreparedStatement pst = conn.prepareStatement(sql);
-        pst.setInt(1, id);
-        pst.executeUpdate();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    return "redirect:/admin-guests";
-}
 }
