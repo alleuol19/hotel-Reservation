@@ -25,6 +25,24 @@
             font-weight: bold;
         }
 
+        .user {
+            position: absolute;
+            right: 50px;
+            top: 35px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 999;
+        }
+
+        .logout-link {
+            color: white;
+            text-decoration: underline;
+            cursor: pointer;
+            position: relative;
+            z-index: 1000;
+        }
+
         .main {
             padding: 40px;
         }
@@ -39,6 +57,33 @@
             font-size: 32px;
             font-weight: bold;
             margin: -40px auto 30px auto;
+        }
+
+        .actions {
+            width: 95%;
+            margin: 0 auto 15px auto;
+            text-align: left;
+        }
+
+        .edit-btn {
+            background: orange;
+            color: white;
+            border: none;
+            padding: 7px 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 7px 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
         }
 
         table {
@@ -61,36 +106,17 @@
             text-align: center;
         }
 
-        .edit-btn {
-            background: orange;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .delete-btn {
-            background: red;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .delete-btn:hover {
-            background: darkred;
-        }
-
         .back {
             display: block;
+            width: fit-content;
             margin: 20px auto;
             text-align: center;
             font-size: 20px;
             text-decoration: none;
             font-weight: bold;
             color: #1e293b;
+            position: relative;
+            z-index: 999;
         }
     </style>
 </head>
@@ -99,14 +125,29 @@
 
 <div class="top">
     <div class="logo">PLAZA HOTEL</div>
+
+    <div class="user">
+        👤 <span th:text="${username}">Admin</span><br>
+        <a class="logout-link" th:href="@{/login}">Log Out</a>
+    </div>
 </div>
 
 <div class="main">
     <div class="title">All Bookings</div>
 
+    <div class="actions">
+        <button type="button" class="edit-btn" onclick="editBooking()">Edit</button>
+
+        <form id="deleteForm" th:action="@{/cancel-booking}" method="post" style="display:inline;">
+            <input type="hidden" name="id" id="deleteId">
+            <button type="button" class="delete-btn" onclick="deleteBooking()">Delete</button>
+        </form>
+    </div>
+
     <table>
         <thead>
             <tr>
+                <th>Select</th>
                 <th>#</th>
                 <th>User</th>
                 <th>Name</th>
@@ -115,15 +156,20 @@
                 <th>Check In</th>
                 <th>Check Out</th>
                 <th>Room ID</th>
-                <th>Action</th>
             </tr>
         </thead>
 
         <tbody>
-            <tr th:each="b, iter : ${bookings}">
-                <!-- AUTO NUMBER -->
-                <td th:text="${iter.count}"></td>
+            <tr th:if="${#lists.isEmpty(bookings)}">
+                <td colspan="9">No bookings found.</td>
+            </tr>
 
+            <tr th:each="b, iter : ${bookings}">
+                <td>
+                    <input type="radio" name="selectedBooking" th:value="${b.id}">
+                </td>
+
+                <td th:text="${iter.count}"></td>
                 <td th:text="${b.username}"></td>
                 <td th:text="${b.name}"></td>
                 <td th:text="${b.roomType}"></td>
@@ -131,28 +177,44 @@
                 <td th:text="${b.checkIn}"></td>
                 <td th:text="${b.checkOut}"></td>
                 <td th:text="${b.roomId}"></td>
-
-                <td>
-                    <!-- EDIT -->
-                    <a th:href="@{/edit-booking(id=${b.id})}">
-                        <button class="edit-btn">Edit</button>
-                    </a>
-
-                    <!-- DELETE -->
-                    <form th:action="@{/cancel-booking}" method="post" style="display:inline;">
-                        <input type="hidden" name="id" th:value="${b.id}">
-                        <button class="delete-btn"
-                            onclick="return confirm('Delete this booking?')">
-                            Delete
-                        </button>
-                    </form>
-                </td>
             </tr>
         </tbody>
     </table>
 
     <a class="back" th:href="@{/admin-dashboard}">‹ Back</a>
 </div>
+
+<script>
+function getSelectedBookingId() {
+    let selected = document.querySelector('input[name="selectedBooking"]:checked');
+    return selected ? selected.value : null;
+}
+
+function editBooking() {
+    let id = getSelectedBookingId();
+
+    if (!id) {
+        alert("Select a booking first.");
+        return;
+    }
+
+    window.location.href = "/edit-booking?id=" + id;
+}
+
+function deleteBooking() {
+    let id = getSelectedBookingId();
+
+    if (!id) {
+        alert("Select a booking first.");
+        return;
+    }
+
+    if (confirm("Delete this booking?")) {
+        document.getElementById("deleteId").value = id;
+        document.getElementById("deleteForm").submit();
+    }
+}
+</script>
 
 </body>
 </html>
