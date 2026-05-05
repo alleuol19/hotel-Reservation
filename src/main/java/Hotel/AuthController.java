@@ -120,6 +120,13 @@ public class AuthController {
     @GetMapping("/admin-dashboard")
     public String adminDashboard(HttpSession session, Model model) {
 
+        String username = (String) session.getAttribute("username");
+        String role = (String) session.getAttribute("role");
+
+        if (username == null || !"Admin".equalsIgnoreCase(role)) {
+            return "redirect:/login";
+        }
+
         int totalRooms = 0;
         int availableRooms = 0;
         int reservedRooms = 0;
@@ -156,7 +163,7 @@ public class AuthController {
             reservedPercent = (reservedRooms * 100) / totalRooms;
         }
 
-        model.addAttribute("username", session.getAttribute("username"));
+        model.addAttribute("username", username);
         model.addAttribute("totalRooms", totalRooms);
         model.addAttribute("availableRooms", availableRooms);
         model.addAttribute("reservedRooms", reservedRooms);
@@ -168,7 +175,17 @@ public class AuthController {
 
     @GetMapping("/user-dashboard")
     public String userDashboard(HttpSession session, Model model) {
-        model.addAttribute("username", session.getAttribute("username"));
+
+        String username = (String) session.getAttribute("username");
+        String role = (String) session.getAttribute("role");
+
+        // 🔒 Protect page
+        if (username == null || !"User".equalsIgnoreCase(role)) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("username", username);
+
         return "user-dashboard";
     }
 
@@ -540,5 +557,51 @@ public String deleteFeedback(@RequestParam int id) {
     }
 
     return "redirect:/admin-feedback";
+}
+
+@GetMapping("/admin-guests")
+public String adminGuests(HttpSession session, Model model) {
+
+    List<Map<String, String>> guests = new ArrayList<>();
+
+    try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+
+        String sql = "SELECT id, username, name, phone, email FROM Bookings";
+        PreparedStatement pst = conn.prepareStatement(sql);
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+            Map<String, String> row = new HashMap<>();
+            row.put("id", rs.getString("id"));
+            row.put("username", rs.getString("username"));
+            row.put("name", rs.getString("name"));
+            row.put("phone", rs.getString("phone"));
+            row.put("email", rs.getString("email"));
+
+            guests.add(row);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    model.addAttribute("username", session.getAttribute("username"));
+    model.addAttribute("guests", guests);
+
+    return "admin-guests";
+}
+
+@PostMapping("/delete-guest")
+public String deleteGuest(@RequestParam int id) {
+    try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+        String sql = "DELETE FROM Bookings WHERE id=?";
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setInt(1, id);
+        pst.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return "redirect:/admin-guests";
 }
 }
