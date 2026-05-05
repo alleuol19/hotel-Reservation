@@ -181,14 +181,14 @@
         } else {
             document.getElementById("disagreeCircle").classList.add("selected");
 
-            alert("You disagreed with the account agreement. You will be returned to the splash page.");
+            alert("You disagreed with the account agreement. You will be returned to the Home Screen.");
             window.location.href = "/";
         }
     }
 
     function checkAgreement(event) {
         if (selectedAgreement === "") {
-            alert("You need to choose Agree or Disagree before creating an account.");
+            alert("Please choose Agree or Disagree before creating an account.");
             return false;
         }
 
@@ -197,7 +197,7 @@
             return false;
         }
 
-        return confirm("Are you sure you want to continue creating this account?");
+        return confirm("Are you sure you want to continue creating your account?");
     }
 </script>
 

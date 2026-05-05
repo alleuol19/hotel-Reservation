@@ -163,15 +163,15 @@ public class AuthController {
                 totalRooms = totalRs.getInt(1);
             }
 
-            String availableSql = "SELECT COUNT(*) FROM Rooms WHERE isAvailable = 1";
-            PreparedStatement availablePst = conn.prepareStatement(availableSql);
-            ResultSet availableRs = availablePst.executeQuery();
+            String reservedSql = "SELECT COUNT(*) FROM Bookings";
+            PreparedStatement reservedPst = conn.prepareStatement(reservedSql);
+            ResultSet reservedRs = reservedPst.executeQuery();
 
-            if (availableRs.next()) {
-                availableRooms = availableRs.getInt(1);
+            if (reservedRs.next()) {
+                reservedRooms = reservedRs.getInt(1);
             }
 
-            reservedRooms = totalRooms - availableRooms;
+            availableRooms = totalRooms - reservedRooms;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -393,7 +393,7 @@ public class AuthController {
         return "my-booking";
     }
 
-    @GetMapping("/cancel-booking")
+    @PostMapping("/cancel-booking")
     public String cancelBooking(@RequestParam int id) {
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
@@ -531,8 +531,7 @@ public class AuthController {
                 row.put("id", rs.getString("id"));
                 row.put("roomType", rs.getString("roomType"));
                 row.put("roomCapacity", rs.getString("roomCapacity"));
-                row.put("checkInDate", rs.getString("checkInDate"));
-                row.put("checkOutDate", rs.getString("checkOutDate"));
+                
                 row.put("available", rs.getString("isAvailable"));
                 rooms.add(row);
             }

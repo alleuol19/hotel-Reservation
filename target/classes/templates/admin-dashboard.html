@@ -26,12 +26,36 @@
         }
 
         .settings {
-            position: absolute;
-            right: 40px;
-            top: 45px;
-            font-size: 24px;
-            font-weight: bold;
-        }
+    position: absolute;
+    right: 40px;
+    top: 45px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.settings-box {
+    display: none;
+    position: absolute;
+    right: 40px;
+    top: 85px;
+    background: white;
+    border: 2px solid #1e293b;
+    width: 180px;
+    z-index: 999;
+}
+
+.settings-box a {
+    display: block;
+    padding: 12px;
+    color: #1e293b;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.settings-box a:hover {
+    background: #8ec9f5;
+}
 
         .side {
             position: absolute;
@@ -149,7 +173,14 @@
 
 <div class="top">
     <div class="logo">Hotel De Soleil</div>
-    <div class="settings">⚙ Settings</div>
+    <div class="settings" onclick="toggleSettings()">⚙ Settings</div>
+
+<div id="settingsBox" class="settings-box">
+    <a th:href="@{/}">Home</a>
+    <a href="#" onclick="alert('Hotel De Soleil is a hotel reservation system for booking rooms, managing guests, rooms, bookings, and feedback.')">About Us</a>
+    <a href="#" onclick="alert('Contact: hoteldesoleil@gmail.com | 0912-345-6789')">Contact</a>
+    <a th:href="@{/developers}">Developers</a>
+</div>
 </div>
 
 <div class="side">
@@ -193,6 +224,11 @@
         </a>
     </div>
 </div>
-
+<script>
+function toggleSettings() {
+    let box = document.getElementById("settingsBox");
+    box.style.display = box.style.display === "block" ? "none" : "block";
+}
+</script>
 </body>
 </html>
