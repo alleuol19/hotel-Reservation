@@ -182,7 +182,7 @@
             document.getElementById("disagreeCircle").classList.add("selected");
 
             alert("You disagreed with the account agreement. You will be returned to the Home Screen.");
-            window.location.href = "/";
+            window.location.href = "/?force=true";
         }
     }
 
@@ -193,7 +193,7 @@
         }
 
         if (selectedAgreement === "disagree") {
-            window.location.href = "/";
+            window.location.href = "/?force=true";
             return false;
         }
 
