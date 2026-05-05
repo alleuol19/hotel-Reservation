@@ -74,6 +74,12 @@
             border: 2px solid #1e293b;
             font-size: 14px;
         }
+        
+        .actions {
+    width: 95%;
+    margin: 10px auto;
+    text-align: left;
+}
 
         table {
             width: 95%;
@@ -151,17 +157,27 @@
     <div class="search-box">
         <input type="text" id="searchInput" placeholder="Search room..." onkeyup="searchTable()">
     </div>
+    
+    
+    <div class="actions">
+    <button onclick="editRoom()" class="edit-btn">Edit</button>
+
+    <form id="deleteForm" th:action="@{/delete-room}" method="post" style="display:inline;">
+        <input type="hidden" name="id" id="deleteId">
+        <button type="button" onclick="deleteRoom()" class="delete-btn">Delete</button>
+    </form>
+</div>
 
     <table>
         <thead>
             <tr>
+            <th>Select</th>
                 <th>#</th>
                 <th>Room Type</th>
                 <th>Room Capacity</th>
                 <th>Check-in Date</th>
                 <th>Check-out Date</th>
                 <th>Available?</th>
-                <th>Action</th>
             </tr>
         </thead>
 
@@ -171,27 +187,16 @@
     </tr>
 
     <tr th:each="r, iter : ${rooms}">
-        <td th:text="${iter.count}"></td>
-        <td th:text="${r.roomType}"></td>
-        <td th:text="${r.roomCapacity}"></td>
-        <td th:text="${r.checkInDate}"></td>
-        <td th:text="${r.checkOutDate}"></td>
-        <td th:text="${r.available}"></td>
-
-        <td>
-            <a th:href="@{/edit-room(id=${r.id})}">
-                <button class="edit-btn">Edit</button>
-            </a>
-
-            <form th:action="@{/delete-room}" method="post" style="display:inline;">
-                <input type="hidden" name="id" th:value="${r.id}">
-                <button type="submit" class="delete-btn"
-                        onclick="return confirm('Delete this room from database?')">
-                    Delete
-                </button>
-            </form>
-        </td>
-    </tr>
+    <td>
+        <input type="radio" name="selectedRoom" th:value="${r.id}">
+    </td>
+    <td th:text="${iter.count}"></td>
+    <td th:text="${r.roomType}"></td>
+    <td th:text="${r.roomCapacity}"></td>
+    <td th:text="${r.checkInDate}"></td>
+    <td th:text="${r.checkOutDate}"></td>
+    <td th:text="${r.available}"></td>
+</tr>
 </tbody>
     </table>
 
@@ -207,7 +212,39 @@ function searchTable() {
         let text = row.innerText.toLowerCase();
         row.style.display = text.includes(input) ? "" : "none";
     });
+    
 }
+
+function getSelectedId() {
+    let selected = document.querySelector('input[name="selectedRoom"]:checked');
+    return selected ? selected.value : null;
+}
+
+function editRoom() {
+    let id = getSelectedId();
+
+    if (!id) {
+        alert("Select a room first.");
+        return;
+    }
+
+    window.location.href = "/edit-room?id=" + id;
+}
+
+function deleteRoom() {
+    let id = getSelectedId();
+
+    if (!id) {
+        alert("Select a room first.");
+        return;
+    }
+
+    if (confirm("Delete this room?")) {
+        document.getElementById("deleteId").value = id;
+        document.getElementById("deleteForm").submit();
+    }
+}
+
 </script>
 
 </body>
