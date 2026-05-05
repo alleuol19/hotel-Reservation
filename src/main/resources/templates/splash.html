@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Plaza Hotel</title>
+    <title>Hotel De Soleil</title>
 
     <style>
         body {
@@ -24,6 +24,7 @@
             position: absolute;
             top: 40px;
             right: 70px;
+            z-index: 20;
         }
 
         .nav a {
@@ -31,6 +32,7 @@
             text-decoration: none;
             margin-left: 35px;
             font-size: 20px;
+            cursor: pointer;
         }
 
         .center-text {
@@ -53,16 +55,6 @@
             margin-top: 15px;
         }
 
-        .hotel-name {
-            position: absolute;
-            left: 80px;
-            bottom: 170px;
-            font-size: 38px;
-            font-family: Georgia, serif;
-            letter-spacing: 3px;
-            color: #d8c9a2;
-        }
-
         .btn {
             position: absolute;
             left: 50%;
@@ -80,6 +72,49 @@
         .btn:hover {
             background: #123f75;
         }
+
+        .drop-box {
+            display: none;
+            position: absolute;
+            top: 95px;
+            right: 70px;
+            width: 430px;
+            background: rgba(23, 35, 51, 0.95);
+            color: white;
+            padding: 20px;
+            border: 2px solid #d4b36a;
+            z-index: 30;
+            line-height: 1.5;
+        }
+
+        .drop-box h2 {
+            color: #d4b36a;
+            margin-top: 0;
+        }
+
+        .rooms-box {
+            width: 720px;
+        }
+
+        .room-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .room-card {
+            background: rgba(255,255,255,0.08);
+            padding: 10px;
+            border: 1px solid #d4b36a;
+        }
+
+        .room-img {
+            width: 100%;
+            height: 90px;
+            background: #8ec9f5;
+            border: 2px solid white;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -88,10 +123,54 @@
 <div class="hero">
 
     <div class="nav">
-        <a th:href="@{/}">Home</a>
-        <a th:href="@{/login}">Rooms & Suites</a>
-        <a href="#">About Us</a>
-        <a href="#">Contact</a>
+        <a onclick="closeBoxes()">Home</a>
+        <a onclick="toggleBox('roomsBox')">Rooms & Suites</a>
+        <a onclick="toggleBox('aboutBox')">About Us</a>
+        <a onclick="toggleBox('contactBox')">Contact</a>
+    </div>
+
+    <div id="roomsBox" class="drop-box rooms-box">
+        <h2>Rooms & Suites</h2>
+
+        <div class="room-list">
+            <div class="room-card">
+                <h3>Normal Room</h3>
+                <div class="room-img"></div>
+                <p>A comfortable room for guests who want a simple and relaxing stay.</p>
+            </div>
+
+            <div class="room-card">
+                <h3>Economy Room</h3>
+                <div class="room-img"></div>
+                <p>An affordable room option with basic hotel features and comfort.</p>
+            </div>
+
+            <div class="room-card">
+                <h3>VIP Suite</h3>
+                <div class="room-img"></div>
+                <p>A special suite with a more elegant space and premium comfort.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="aboutBox" class="drop-box">
+        <h2>About Us</h2>
+        <p>
+            Hotel De Soleil is a hotel reservation system designed to make room booking easier,
+            faster, and more organized. Users can create an account, book available rooms,
+            view their bookings, and send feedback to the hotel.
+        </p>
+        <p>
+            For the admin side, the system helps manage room availability, booking records,
+            guest information, and user feedback.
+        </p>
+    </div>
+
+    <div id="contactBox" class="drop-box">
+        <h2>Contact</h2>
+        <p>Email: HotelDeSoleil@gmail.com</p>
+        <p>Phone: 0912-345-6789</p>
+        <p>Address: Hotel De Soleil Global Tower</p>
     </div>
 
     <div class="center-text">
@@ -102,6 +181,28 @@
     <a class="btn" th:href="@{/login}">LOG IN</a>
 
 </div>
+
+<script>
+function toggleBox(id) {
+    const boxes = ["roomsBox", "aboutBox", "contactBox"];
+
+    boxes.forEach(boxId => {
+        const box = document.getElementById(boxId);
+
+        if (boxId === id) {
+            box.style.display = box.style.display === "block" ? "none" : "block";
+        } else {
+            box.style.display = "none";
+        }
+    });
+}
+
+function closeBoxes() {
+    ["roomsBox", "aboutBox", "contactBox"].forEach(id => {
+        document.getElementById(id).style.display = "none";
+    });
+}
+</script>
 
 </body>
 </html>
