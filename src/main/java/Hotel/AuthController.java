@@ -26,13 +26,12 @@ public class AuthController {
         return "splash";
     }
 
- // LOGIN PAGE
     @GetMapping("/login")
     public String login() {
         return "login";
     }
 
-    // LOGIN PROCESS (Admin + User)
+
     @PostMapping("/login")
     public String loginProcess(@RequestParam String username,
                                @RequestParam String password,
@@ -41,7 +40,7 @@ public class AuthController {
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
 
-            // 🔴 CHECK ADMIN TABLE
+
             String adminSql = "SELECT * FROM Admin WHERE username=? AND password=?";
             PreparedStatement adminPst = conn.prepareStatement(adminSql);
             adminPst.setString(1, username);
@@ -54,7 +53,6 @@ public class AuthController {
                 return "redirect:/admin-dashboard";
             }
 
-            // 🔵 CHECK USERS TABLE
             String userSql = "SELECT * FROM Users WHERE username=? AND password=?";
             PreparedStatement userPst = conn.prepareStatement(userSql);
             userPst.setString(1, username);
@@ -67,7 +65,7 @@ public class AuthController {
                 return "redirect:/user-dashboard";
             }
 
-            // ❌ IF NOT FOUND
+
             model.addAttribute("error", "Invalid username or password!");
             return "login";
 
@@ -77,13 +75,13 @@ public class AuthController {
         }
     }
 
- // SIGNUP PAGE
+
     @GetMapping("/signup")
     public String signupPage() {
         return "signup";
     }
 
-    // SIGNUP PROCESS
+
     @PostMapping("/signup")
     public String signupProcess(@RequestParam String username,
                                 @RequestParam String password,
@@ -91,7 +89,7 @@ public class AuthController {
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
 
-            // CHECK IF USERNAME EXISTS
+
             String checkSql = "SELECT * FROM Users WHERE username=?";
             PreparedStatement checkPst = conn.prepareStatement(checkSql);
             checkPst.setString(1, username);
@@ -102,7 +100,7 @@ public class AuthController {
                 return "signup";
             }
 
-            // INSERT NEW USER
+
             String insertSql = "INSERT INTO Users (username, password, role) VALUES (?, ?, 'User')";
             PreparedStatement pst = conn.prepareStatement(insertSql);
             pst.setString(1, username);
@@ -179,7 +177,7 @@ public class AuthController {
         String username = (String) session.getAttribute("username");
         String role = (String) session.getAttribute("role");
 
-        // 🔒 Protect page
+
         if (username == null || !"User".equalsIgnoreCase(role)) {
             return "redirect:/login";
         }
@@ -224,58 +222,54 @@ public class AuthController {
     }
 
     @PostMapping("/book-room")
-    public String bookRoom(@RequestParam String name,
-                           @RequestParam String phone,
-                           @RequestParam String email,
-                           @RequestParam String address,
-                           @RequestParam String city,
-                           @RequestParam String nationality,
-                           @RequestParam String passportNo,
-                           @RequestParam String cardNumber,
-                           @RequestParam String cvcCode,
-                           @RequestParam String roomType,
-                           @RequestParam String roomCapacity,
-                           @RequestParam String checkInDate,
-                           @RequestParam String checkOutDate,
-                           @RequestParam String roomId,
-                           HttpSession session) {
+    public String confirmBooking(@RequestParam String name,
+                                 @RequestParam String phone,
+                                 @RequestParam String email,
+                                 @RequestParam String address,
+                                 @RequestParam String city,
+                                 @RequestParam String nationality,
+                                 @RequestParam String passportNo,
+                                 @RequestParam String cardNumber,
+                                 @RequestParam String cvcCode,
+                                 @RequestParam String roomType,
+                                 @RequestParam String roomCapacity,
+                                 @RequestParam String checkInDate,
+                                 @RequestParam String checkOutDate,
+                                 @RequestParam String roomId,
+                                 HttpSession session,
+                                 Model model) {
 
-        String username = (String) session.getAttribute("username");
+        model.addAttribute("name", name);
+        model.addAttribute("phone", phone);
+        model.addAttribute("email", email);
+        model.addAttribute("address", address);
+        model.addAttribute("city", city);
+        model.addAttribute("nationality", nationality);
+        model.addAttribute("passportNo", passportNo);
+        model.addAttribute("cardNumber", cardNumber);
+        model.addAttribute("cvcCode", cvcCode);
+        model.addAttribute("roomType", roomType);
+        model.addAttribute("roomCapacity", roomCapacity);
+        model.addAttribute("checkInDate", checkInDate);
+        model.addAttribute("checkOutDate", checkOutDate);
+        model.addAttribute("roomId", roomId);
 
-        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-            String sql = "INSERT INTO Bookings " +
-                    "(username, name, phone, email, address, city, nationality, passportNo, cardNumber, cvcCode, roomType, roomCapacity, checkInDate, checkOutDate, roomId) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        session.setAttribute("bookingName", name);
+        session.setAttribute("bookingPhone", phone);
+        session.setAttribute("bookingEmail", email);
+        session.setAttribute("bookingAddress", address);
+        session.setAttribute("bookingCity", city);
+        session.setAttribute("bookingNationality", nationality);
+        session.setAttribute("bookingPassportNo", passportNo);
+        session.setAttribute("bookingCardNumber", cardNumber);
+        session.setAttribute("bookingCvcCode", cvcCode);
+        session.setAttribute("bookingRoomType", roomType);
+        session.setAttribute("bookingRoomCapacity", roomCapacity);
+        session.setAttribute("bookingCheckInDate", checkInDate);
+        session.setAttribute("bookingCheckOutDate", checkOutDate);
+        session.setAttribute("bookingRoomId", roomId);
 
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setString(1, username);
-            pst.setString(2, name);
-            pst.setString(3, phone);
-            pst.setString(4, email);
-            pst.setString(5, address);
-            pst.setString(6, city);
-            pst.setString(7, nationality);
-            pst.setString(8, passportNo);
-            pst.setString(9, cardNumber);
-            pst.setString(10, cvcCode);
-            pst.setString(11, roomType);
-            pst.setString(12, roomCapacity);
-            pst.setString(13, checkInDate);
-            pst.setString(14, checkOutDate);
-            pst.setString(15, roomId);
-
-            pst.executeUpdate();
-
-            String updateRoom = "UPDATE Rooms SET isAvailable=false WHERE id=?";
-            PreparedStatement updatePst = conn.prepareStatement(updateRoom);
-            updatePst.setString(1, roomId);
-            updatePst.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/my-booking";
+        return "confirmation";
     }
 
     @GetMapping("/my-booking")
