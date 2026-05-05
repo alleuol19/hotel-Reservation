@@ -29,27 +29,25 @@ public class AuthController {
 	static String dbUser = "root";
 	static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
 	
-	
-
 	@GetMapping("/")
-	public String splash(HttpSession session) {
+	public String splash(@RequestParam(required = false) String force,
+	                     HttpSession session) {
 
-	    String username = (String) session.getAttribute("username");
-	    String role = (String) session.getAttribute("role");
+	    if (force == null) {
+	        String username = (String) session.getAttribute("username");
+	        String role = (String) session.getAttribute("role");
 
-
-	    if (username != null) {
-	        if ("Admin".equalsIgnoreCase(role)) {
-	            return "redirect:/admin-dashboard";
-	        } else {
-	            return "redirect:/user-dashboard";
+	        if (username != null) {
+	            if ("Admin".equalsIgnoreCase(role)) {
+	                return "redirect:/admin-dashboard";
+	            } else {
+	                return "redirect:/user-dashboard";
+	            }
 	        }
 	    }
 
-
 	    return "splash";
 	}
-
     @GetMapping("/login")
     public String login() {
         return "login";
