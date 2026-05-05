@@ -1,14 +1,24 @@
 package Hotel;
 
 
-import java.sql.*;
-import java.util.*;
-
-import jakarta.servlet.http.HttpSession;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.servlet.http.HttpSession;
 
 
 
@@ -282,6 +292,27 @@ public class AuthController {
         session.setAttribute("bookingCheckInDate", checkInDate);
         session.setAttribute("bookingCheckOutDate", checkOutDate);
         session.setAttribute("bookingRoomId", roomId);
+        
+        LocalDate checkIn = LocalDate.parse(checkInDate);
+        LocalDate checkOut = LocalDate.parse(checkOutDate);
+
+        long nights = ChronoUnit.DAYS.between(checkIn, checkOut);
+
+        int nightCost = 0;
+
+        if ("Economy".equalsIgnoreCase(roomType)) {
+            nightCost = 1000;
+        } else if ("Normal".equalsIgnoreCase(roomType)) {
+            nightCost = 1800;
+        } else if ("VIP".equalsIgnoreCase(roomType)) {
+            nightCost = 3000;
+        }
+
+        long totalPrice = nights * nightCost;
+
+        model.addAttribute("nights", nights);
+        model.addAttribute("nightCost", "₱" + nightCost);
+        model.addAttribute("totalPrice", "₱" + totalPrice);
 
         return "confirmation";
     }
@@ -639,7 +670,4 @@ public class AuthController {
 
         return "redirect:/user-dashboard";
     }
-
-
-
 }
