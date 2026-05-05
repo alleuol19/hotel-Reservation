@@ -99,21 +99,25 @@
         }
 
         .back {
-            display: block;
-            width: fit-content;
-            margin: 30px auto;
-            font-size: 20px;
-            font-weight: bold;
-            color: #1e293b;
-            text-decoration: none;
-        }
+    display: block;
+    width: fit-content;
+    margin: 25px auto;
+    text-align: center;
+    color: #1e293b;
+    font-size: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    position: relative;
+    z-index: 9999;
+    cursor: pointer;
+}
     </style>
 </head>
 
 <body>
 
 <div class="top">
-    <div class="logo">PLAZA HOTEL</div>
+    <div class="logo">Hotel De Soleil</div>
 
     <div class="user">
         👤 <span th:text="${username}">User</span><br>
