@@ -316,6 +316,48 @@ public class AuthController {
 
         return "confirmation";
     }
+    
+    @PostMapping("/save-booking")
+    public String saveBooking(HttpSession session) {
+
+        String username = (String) session.getAttribute("username");
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+
+            String sql = "INSERT INTO Bookings " +
+                    "(username, name, phone, email, address, city, nationality, passportNo, cardNumber, cvcCode, roomType, roomCapacity, checkInDate, checkOutDate, roomId) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, username);
+            pst.setString(2, (String) session.getAttribute("bookingName"));
+            pst.setString(3, (String) session.getAttribute("bookingPhone"));
+            pst.setString(4, (String) session.getAttribute("bookingEmail"));
+            pst.setString(5, (String) session.getAttribute("bookingAddress"));
+            pst.setString(6, (String) session.getAttribute("bookingCity"));
+            pst.setString(7, (String) session.getAttribute("bookingNationality"));
+            pst.setString(8, (String) session.getAttribute("bookingPassportNo"));
+            pst.setString(9, (String) session.getAttribute("bookingCardNumber"));
+            pst.setString(10, (String) session.getAttribute("bookingCvcCode"));
+            pst.setString(11, (String) session.getAttribute("bookingRoomType"));
+            pst.setString(12, (String) session.getAttribute("bookingRoomCapacity"));
+            pst.setString(13, (String) session.getAttribute("bookingCheckInDate"));
+            pst.setString(14, (String) session.getAttribute("bookingCheckOutDate"));
+            pst.setString(15, (String) session.getAttribute("bookingRoomId"));
+
+            pst.executeUpdate();
+
+            String updateRoom = "UPDATE Rooms SET isAvailable=false WHERE id=?";
+            PreparedStatement updatePst = conn.prepareStatement(updateRoom);
+            updatePst.setString(1, (String) session.getAttribute("bookingRoomId"));
+            updatePst.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/user-dashboard";
+    }
 
     @GetMapping("/my-booking")
     public String myBooking(HttpSession session, Model model) {
