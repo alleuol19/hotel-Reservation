@@ -547,6 +547,30 @@ public class AuthController {
         return "admin-rooms";
     }
     
+    @GetMapping("/edit-room")
+    public String editRoom(@RequestParam int id, Model model) {
+        Map<String, String> room = new HashMap<>();
+
+        try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
+            String sql = "SELECT * FROM Rooms WHERE id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, id);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                room.put("id", rs.getString("id"));
+                room.put("roomType", rs.getString("roomType"));
+                room.put("roomCapacity", rs.getString("roomCapacity"));
+                room.put("available", rs.getString("isAvailable"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("room", room);
+        return "edit-room";
+    }
+    
     @PostMapping("/delete-room")
     public String deleteRoom(@RequestParam int id) {
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
