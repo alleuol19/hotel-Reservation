@@ -543,7 +543,7 @@ public String adminFeedback(Model model) {
     return "admin-feedback";
 }
 
-@GetMapping("/delete-feedback")
+@PostMapping("/delete-feedback")
 public String deleteFeedback(@RequestParam int id) {
 
     try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
