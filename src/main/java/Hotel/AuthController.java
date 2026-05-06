@@ -38,6 +38,46 @@ public class AuthController {
     public String bookingPage() {
         return "booking";
     }
+	
+	@GetMapping("/contact-us")
+	public String contactUsPage() {
+	    return "contact-us";
+	}
+	
+	@PostMapping("/send-contact")
+	public String sendContact(
+	        @RequestParam String firstName,
+	        @RequestParam String lastName,
+	        @RequestParam String email,
+	        @RequestParam String message
+	) {
+
+	    try {
+
+	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+	        String sql = "INSERT INTO contact_messages " +
+	                "(first_name, last_name, email, message) " +
+	                "VALUES (?, ?, ?, ?)";
+
+	        PreparedStatement stmt = conn.prepareStatement(sql);
+
+	        stmt.setString(1, firstName);
+	        stmt.setString(2, lastName);
+	        stmt.setString(3, email);
+	        stmt.setString(4, message);
+
+	        stmt.executeUpdate();
+
+	        stmt.close();
+	        conn.close();
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return "redirect:/";
+	}
 
     @PostMapping("/save-booking")
     public String saveBooking(

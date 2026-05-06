@@ -213,6 +213,43 @@
             margin:15px 0;
             font-size:18px;
         }
+        .hero-content{
+    margin-top:-70px;
+}
+
+.hero-logo{
+    width:120px;
+    height:120px;
+    object-fit:cover;
+    border-radius:50%;
+    margin-bottom:20px;
+    border:4px solid rgba(255,255,255,0.7);
+}
+
+.hero-buttons{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-top:40px;
+    flex-wrap:wrap;
+}
+
+.contact-btn{
+    display:inline-block;
+    padding:18px 50px;
+    background:transparent;
+    border:2px solid white;
+    color:white;
+    text-decoration:none;
+    font-size:22px;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.contact-btn:hover{
+    background:white;
+    color:#101820;
+}
 
         /* FOOTER */
 
@@ -283,12 +320,14 @@
         <a class="book-btn" th:href="@{/book-room}">
             BOOK NOW
         </a>
+        
+        <a class="contact-btn" th:href="@{/contact-us}">
+    CONTACT US
+</a>
 
     </div>
 
 </section>
-
-<!-- ABOUT -->
 
 <section class="section" id="about">
 
