@@ -159,13 +159,14 @@
                 <th>Room ID</th>
                 <th>Room Type</th>
                 <th>Room Capacity</th>
-                <th>Status</th>
+                <th>Total Rooms</th>
+                <th>Available Rooms</th>
             </tr>
         </thead>
 
         <tbody>
             <tr th:if="${#lists.isEmpty(rooms)}">
-                <td colspan="6">No rooms found.</td>
+                <td colspan="7">No rooms found.</td>
             </tr>
 
             <tr th:each="r, iter : ${rooms}">
@@ -176,7 +177,8 @@
                 <td th:text="${r.id}"></td>
                 <td th:text="${r.roomType}"></td>
                 <td th:text="${r.roomCapacity}"></td>
-                <td th:text="${r.available == '1' ? 'Available' : 'Reserved'}"></td>
+                <td th:text="${r.totalRooms}"></td>
+                <td th:text="${r.availableRooms}"></td>
             </tr>
         </tbody>
     </table>

@@ -221,7 +221,8 @@ public class AuthController {
         List<Map<String, String>> availableRooms = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(url, dbUser, dbPass)) {
-            String sql = "SELECT * FROM Rooms WHERE isAvailable = 1";
+
+            String sql = "SELECT * FROM Rooms WHERE availableRooms > 0";
             PreparedStatement pst = conn.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();
 
@@ -230,6 +231,7 @@ public class AuthController {
                 row.put("id", rs.getString("id"));
                 row.put("roomType", rs.getString("roomType"));
                 row.put("roomCapacity", rs.getString("roomCapacity"));
+                row.put("availableRooms", rs.getString("availableRooms"));
                 availableRooms.add(row);
             }
 
@@ -530,7 +532,8 @@ public class AuthController {
                 row.put("roomType", rs.getString("roomType"));
                 row.put("roomCapacity", rs.getString("roomCapacity"));
                 
-                row.put("available", rs.getString("isAvailable"));
+                row.put("totalRooms", rs.getString("totalRooms"));
+                row.put("availableRooms", rs.getString("availableRooms"));
                 rooms.add(row);
             }
 

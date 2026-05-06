@@ -253,15 +253,17 @@
                     <div class="row"><label>Check-out Date</label><input type="date" name="checkOutDate" required></div>
 
                     <div class="row">
-                        <label>Room ID</label>
-                        <select name="roomId" required>
-    <option value="">Select Available Room</option>
-    <option th:each="room : ${availableRooms}"
-            th:value="${room.id}"
-            th:text="${'Room ' + room.id + ' - ' + room.roomType + ' - ' + room.roomCapacity}">
-    </option>
-</select>
-                    </div>
+    <label>Room</label>
+
+    <select name="roomId" required>
+        <option value="">Select Available Room</option>
+
+        <option th:each="room : ${availableRooms}"
+                th:value="${room.id}"
+                th:text="${room.roomType + ' - ' + room.roomCapacity + ' | Available: ' + room.availableRooms}">
+        </option>
+    </select>
+</div>
                 </fieldset>
             </div>
         </div>
