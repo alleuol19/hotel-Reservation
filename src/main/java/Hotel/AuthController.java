@@ -33,4 +33,54 @@ public class AuthController {
 	public String homepage() {
 	    return "homepage";
 	}
+	
+	@GetMapping("/book-room")
+    public String bookingPage() {
+        return "booking";
+    }
+
+    @PostMapping("/save-booking")
+    public String saveBooking(
+            @RequestParam String fullName,
+            @RequestParam String contactNumber,
+            @RequestParam String email,
+            @RequestParam String checkInDate,
+            @RequestParam String checkOutDate,
+            @RequestParam String roomType,
+            @RequestParam int guests,
+            @RequestParam double price,
+            Model model
+    ) {
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String sql = "INSERT INTO booking " +
+                    "(full_name, contact_number, email, check_in_date, check_out_date, room_type, guests, price) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, fullName);
+            stmt.setString(2, contactNumber);
+            stmt.setString(3, email);
+            stmt.setString(4, checkInDate);
+            stmt.setString(5, checkOutDate);
+            stmt.setString(6, roomType);
+            stmt.setInt(7, guests);
+            stmt.setDouble(8, price);
+
+            stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
+
+            model.addAttribute("message", "Booking successful!");
+            return "success";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("message", "Booking failed. Please try again.");
+            return "booking";
+        }
+    }
 }
