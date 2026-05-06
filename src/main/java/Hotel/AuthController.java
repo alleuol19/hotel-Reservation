@@ -75,7 +75,7 @@ public class AuthController {
             conn.close();
 
             model.addAttribute("message", "Booking successful!");
-            return "success";
+            return "homepage";
 
         } catch (Exception e) {
             e.printStackTrace();

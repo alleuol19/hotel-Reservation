@@ -260,7 +260,7 @@
             </ul>
         </div>
 
-        <form class="booking-form" th:action="@{/save-booking}" method="post">
+        <form class="booking-form" th:action="@{/save-booking}" method="post" onsubmit="return confirmBooking()">
 
             <h2>Reservation Form</h2>
 
@@ -331,15 +331,15 @@
             <input type="hidden" name="price" id="priceInput">
 
             <div class="terms">
-                <input type="checkbox" required>
-                <span>
-                    I confirm that my booking details are correct.
-                </span>
-            </div>
+    <input type="checkbox" id="confirmDetails">
+    <span>
+        I confirm that my booking details are correct.
+    </span>
+</div>
 
-            <button type="submit" class="confirm-btn">
-                CONFIRM BOOKING
-            </button>
+<button type="submit" class="confirm-btn">
+    CONFIRM BOOKING
+</button>
 
             <a class="back-link" th:href="@{/}">
                 ← Back to Home
@@ -371,6 +371,17 @@
 
         priceText.innerText = "₱" + price.toLocaleString();
         priceInput.value = price;
+    }
+
+    function confirmBooking(){
+        const checkbox = document.getElementById("confirmDetails");
+
+        if(!checkbox.checked){
+            alert("Please confirm that your booking details are correct before proceeding.");
+            return false;
+        }
+
+        return confirm("Are you sure you want to confirm this booking?");
     }
 </script>
 
