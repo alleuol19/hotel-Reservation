@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Hotel De Soleil</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            scroll-behavior:smooth;
+        }
+
+        body{
+            font-family:"Segoe UI", Arial, sans-serif;
+            background:#f5f5f5;
+            overflow-x:hidden;
+        }
+
+        /* NAVBAR */
+
+        .navbar{
+            width:100%;
+            height:85px;
+            background:rgba(15,25,40,0.92);
+            position:fixed;
+            top:0;
+            left:0;
+            z-index:999;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:0 70px;
+        }
+
+        .logo{
+            color:white;
+            font-size:34px;
+            font-weight:bold;
+            letter-spacing:1px;
+        }
+
+        .nav-links a{
+            color:white;
+            text-decoration:none;
+            margin-left:35px;
+            font-size:18px;
+            transition:0.3s;
+        }
+
+        .nav-links a:hover{
+            color:#d4b36a;
+        }
+
+        /* HERO */
+
+        .hero{
+            width:100%;
+            height:100vh;
+
+            background-image:
+            linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+            url('/images/splash-bg.jpg');
+
+            background-size:cover;
+            background-position:center;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            text-align:center;
+            color:white;
+            padding:20px;
+        }
+
+        .hero-content h1{
+            font-size:90px;
+            font-family:Georgia, serif;
+        }
+
+        .hero-content p{
+            font-size:28px;
+            margin-top:15px;
+            color:#d4b36a;
+        }
+
+        .book-btn{
+            display:inline-block;
+            margin-top:40px;
+            padding:18px 50px;
+            background:#d4b36a;
+            color:white;
+            text-decoration:none;
+            font-size:22px;
+            font-weight:bold;
+            transition:0.3s;
+        }
+
+        .book-btn:hover{
+            background:#b7964c;
+        }
+
+        /* ABOUT */
+
+        .section{
+            padding:90px 12%;
+        }
+
+        .section-title{
+            text-align:center;
+            font-size:50px;
+            margin-bottom:20px;
+            color:#1e293b;
+        }
+
+        .section-sub{
+            text-align:center;
+            color:gray;
+            margin-bottom:60px;
+            font-size:18px;
+        }
+
+        .about-box{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:50px;
+            align-items:center;
+        }
+
+        .about-box img{
+            width:100%;
+            border-radius:10px;
+            box-shadow:0 0 15px rgba(0,0,0,0.2);
+        }
+
+        .about-text{
+            font-size:19px;
+            line-height:1.8;
+            color:#444;
+        }
+
+        /* ROOMS */
+
+        .rooms{
+            background:#101820;
+            color:white;
+        }
+
+        .room-grid{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:35px;
+        }
+
+        .room-card{
+            background:white;
+            color:black;
+            overflow:hidden;
+            border-radius:10px;
+            box-shadow:0 0 15px rgba(0,0,0,0.2);
+        }
+
+        .room-card img{
+            width:100%;
+            height:250px;
+            object-fit:cover;
+        }
+
+        .room-info{
+            padding:20px;
+        }
+
+        .room-info h3{
+            margin-bottom:15px;
+            font-size:28px;
+        }
+
+        .room-info p{
+            color:#555;
+            line-height:1.6;
+        }
+
+        /* GALLERY */
+
+        .gallery-grid{
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            gap:15px;
+        }
+
+        .gallery-grid img{
+            width:100%;
+            height:220px;
+            object-fit:cover;
+            border-radius:8px;
+            transition:0.3s;
+        }
+
+        .gallery-grid img:hover{
+            transform:scale(1.03);
+        }
+
+        /* CONTACT */
+
+        .contact{
+            background:#101820;
+            color:white;
+            text-align:center;
+        }
+
+        .contact p{
+            margin:15px 0;
+            font-size:18px;
+        }
+
+        /* FOOTER */
+
+        .footer{
+            background:black;
+            color:white;
+            text-align:center;
+            padding:20px;
+            font-size:15px;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:1000px){
+
+            .hero-content h1{
+                font-size:60px;
+            }
+
+            .room-grid{
+                grid-template-columns:1fr;
+            }
+
+            .gallery-grid{
+                grid-template-columns:1fr 1fr;
+            }
+
+            .about-box{
+                grid-template-columns:1fr;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+    <div class="logo">
+        HOTEL DE SOLEIL
+    </div>
+
+    <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#rooms">Rooms</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Contact</a>
+    </div>
+
+</div>
+
+<!-- HERO -->
+
+<section class="hero" id="home">
+
+    <div class="hero-content">
+
+        <h1>Luxury & Comfort</h1>
+
+        <p>
+            Experience elegance and premium hospitality
+        </p>
+
+        <a class="book-btn" th:href="@{/book-room}">
+            BOOK NOW
+        </a>
+
+    </div>
+
+</section>
+
+<!-- ABOUT -->
+
+<section class="section" id="about">
+
+    <h1 class="section-title">About Us</h1>
+
+    <p class="section-sub">
+        Welcome to Hotel De Soleil
+    </p>
+
+    <div class="about-box">
+
+        <img src="/images/about-hotel.jpg">
+
+        <div class="about-text">
+
+            Hotel De Soleil offers luxury accommodation,
+            modern facilities, and relaxing experiences
+            for local and international guests.
+
+            <br><br>
+
+            Our hotel reservation system provides easy
+            room booking, reservation management,
+            and premium customer experience.
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ROOMS -->
+
+<section class="section rooms" id="rooms">
+
+    <h1 class="section-title" style="color:white;">
+        Rooms & Suites
+    </h1>
+
+    <p class="section-sub">
+        Choose your perfect stay
+    </p>
+
+    <div class="room-grid">
+
+        <div class="room-card">
+
+            <img src="/images/economy-room.jpg">
+
+            <div class="room-info">
+
+                <h3>Economy Room</h3>
+
+                <p>
+                    Affordable comfort with essential
+                    hotel amenities and relaxing atmosphere.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="room-card">
+
+            <img src="/images/normal-room.jpg">
+
+            <div class="room-info">
+
+                <h3>Normal Room</h3>
+
+                <p>
+                    Comfortable and spacious room
+                    perfect for families and travelers.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="room-card">
+
+            <img src="/images/vip-suite.jpg">
+
+            <div class="room-info">
+
+                <h3>VIP Suite</h3>
+
+                <p>
+                    Experience luxury accommodation
+                    with premium hotel services.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- GALLERY -->
+
+<section class="section" id="gallery">
+
+    <h1 class="section-title">Gallery</h1>
+
+    <p class="section-sub">
+        Explore our hotel experience
+    </p>
+
+    <div class="gallery-grid">
+
+        <img src="/images/gallery1.jpg">
+        <img src="/images/gallery2.jpg">
+        <img src="/images/gallery3.jpg">
+        <img src="/images/gallery4.jpg">
+        <img src="/images/gallery5.jpg">
+        <img src="/images/gallery6.jpg">
+        <img src="/images/gallery7.jpg">
+        <img src="/images/gallery8.jpg">
+
+    </div>
+
+</section>
+
+<!-- CONTACT -->
+
+<section class="section contact" id="contact">
+
+    <h1 class="section-title" style="color:white;">
+        Contact Us
+    </h1>
+
+    <p>Email: HotelDeSoleil@gmail.com</p>
+
+    <p>Phone: 0912-345-6789</p>
+
+    <p>Address: Quezon City, Philippines</p>
+
+</section>
+
+<!-- FOOTER -->
+
+<div class="footer">
+    © 2026 Hotel De Soleil | All Rights Reserved
+</div>
+
+</body>
+</html>
