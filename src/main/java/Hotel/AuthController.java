@@ -74,16 +74,25 @@ public class AuthController {
 	
 	@PostMapping("/signup")
 	public String signup(
-	        @RequestParam String fullName,
+	        @RequestParam String firstName,
+	        @RequestParam String lastName,
 	        @RequestParam String email,
 	        @RequestParam String password,
 	        HttpSession session
 	) {
-	    try {
-	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
 
-	        String sql = "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)";
-	        PreparedStatement stmt = conn.prepareStatement(sql);
+	    String fullName = firstName + " " + lastName;
+
+	    try {
+
+	        Connection conn =
+	                DriverManager.getConnection(url, dbUser, dbPass);
+
+	        String sql =
+	                "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)";
+
+	        PreparedStatement stmt =
+	                conn.prepareStatement(sql);
 
 	        stmt.setString(1, fullName);
 	        stmt.setString(2, email);
@@ -98,7 +107,9 @@ public class AuthController {
 	        session.setAttribute("userEmail", email);
 
 	    } catch (Exception e) {
+
 	        e.printStackTrace();
+
 	    }
 
 	    return "redirect:/";
