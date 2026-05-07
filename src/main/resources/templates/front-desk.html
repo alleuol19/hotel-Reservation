@@ -309,33 +309,25 @@
             <input type="hidden" name="id" th:value="${booking.id}">
 
             <select name="paymentMethod" required>
-                <option value="">Payment</option>
-                <option value="Cash">Cash</option>
-                <option value="Card">Card</option>
-            </select>
+    <option value="">Payment</option>
+    <option value="Cash">Cash</option>
+    <option value="Card">Card</option>
+</select>
 
-            <select name="roomNumber" required>
-                <option value="">Room</option>
-                <option value="R101">R101</option>
-                <option value="R102">R102</option>
-                <option value="R103">R103</option>
-                <option value="R104">R104</option>
-                <option value="R105">R105</option>
-                <option value="R201">R201</option>
-                <option value="R202">R202</option>
-                <option value="R203">R203</option>
-                <option value="R204">R204</option>
-                <option value="R205">R205</option>
-                <option value="R301">R301</option>
-                <option value="R302">R302</option>
-                <option value="R303">R303</option>
-                <option value="R304">R304</option>
-                <option value="R305">R305</option>
-            </select>
+<select name="roomNumber" required>
 
-            <button class="action-btn confirm-btn" type="submit">
-                Confirm
-            </button>
+    <option value="">Room</option>
+
+    <option th:each="room : ${booking.availableRooms}"
+            th:value="${room}"
+            th:text="${room}">
+    </option>
+
+</select>
+
+<button class="action-btn confirm-btn" type="submit">
+    Confirm
+</button>
 
         </form>
 
