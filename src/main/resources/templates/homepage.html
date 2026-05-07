@@ -41,8 +41,6 @@ body{
     overflow-x:hidden;
 }
 
-/* NAVBAR */
-
 nav{
     position:fixed;
     top:0;
@@ -138,29 +136,25 @@ nav{
     border:1.5px solid rgba(201,168,76,0.4);
 }
 
-.btn-nav-signup:hover{
-    background:rgba(201,168,76,0.1);
-}
-
 .btn-nav-login{
     background:var(--blue);
     color:white;
     border:none;
 }
 
-.btn-nav-login:hover{
-    background:var(--blue-light);
-}
-
 .user-badge{
-    display:none;
+    display:flex;
     align-items:center;
-    gap:7px;
+    gap:10px;
     font-size:0.85rem;
     color:var(--off-white);
 }
 
-/* PAGES */
+.user-badge a{
+    color:#f53c3c;
+    text-decoration:none;
+    font-weight:600;
+}
 
 .page{
     display:none;
@@ -171,8 +165,6 @@ nav{
 .page.active{
     display:block;
 }
-
-/* HERO */
 
 #hero{
     position:relative;
@@ -274,12 +266,6 @@ nav{
     border:1.5px solid rgba(255,255,255,0.4);
 }
 
-.btn-outline:hover{
-    background:rgba(255,255,255,0.08);
-}
-
-/* SECTIONS */
-
 .section{
     padding:80px 6rem;
 }
@@ -306,8 +292,6 @@ nav{
     background:var(--blue);
     margin:0.8rem auto 3rem;
 }
-
-/* ABOUT */
 
 #about{
     background:#f5f5f8;
@@ -346,8 +330,6 @@ nav{
     margin-bottom:1rem;
     font-size:0.94rem;
 }
-
-/* ROOMS */
 
 #rooms-preview,
 #page-rooms{
@@ -482,8 +464,6 @@ nav{
     margin:3px;
 }
 
-/* RESERVATIONS */
-
 #page-reservations{
     background:var(--dark);
     padding:3rem 6rem;
@@ -526,17 +506,20 @@ nav{
     text-transform:uppercase;
 }
 
-.res-status.confirmed{
+.res-status.PENDING{
+    background:rgba(245,180,26,0.12);
+    color:#f5b41a;
+}
+
+.res-status.SUCCESSFUL{
     background:rgba(26,245,140,0.12);
     color:#26f58c;
 }
 
-.res-status.cancelled{
+.res-status.CANCELED{
     background:rgba(245,60,60,0.12);
     color:#f53c3c;
 }
-
-/* CONTACT */
 
 #contact{
     background:var(--dark2);
@@ -562,8 +545,6 @@ nav{
     font-size:1.6rem;
     margin-bottom:0.6rem;
 }
-
-/* MODAL */
 
 .modal-overlay{
     display:none;
@@ -654,47 +635,6 @@ nav{
     cursor:pointer;
 }
 
-.toast{
-    position:fixed;
-    bottom:2rem;
-    right:2rem;
-    z-index:9999;
-    padding:14px 22px;
-    border-radius:10px;
-    display:none;
-    font-weight:600;
-}
-
-.toast.success{display:block;background:#0a2e1e;color:#26f58c;}
-.toast.error{display:block;background:#2e0a0a;color:#f53c3c;}
-.toast.info{display:block;background:#0a1a3e;color:var(--blue-light);}
-
-.empty-state{
-    text-align:center;
-    padding:4rem 2rem;
-    color:var(--gray);
-}
-
-.btn-cancel-res{
-    margin-top:12px;
-    padding:8px 14px;
-    background:rgba(245,60,60,0.1);
-    color:#f53c3c;
-    border:1px solid rgba(245,60,60,0.25);
-    border-radius:7px;
-    cursor:pointer;
-}
-
-.user-badge button{
-    margin-left:8px;
-    padding:5px 10px;
-    background:rgba(245,60,60,0.12);
-    color:#f53c3c;
-    border:1px solid rgba(245,60,60,0.25);
-    border-radius:6px;
-    cursor:pointer;
-}
-
 footer{
     background:var(--black);
     padding:2rem 6rem;
@@ -745,17 +685,18 @@ footer{
         <a class="active" id="nav-home" onclick="showPage('home');setActiveNav('nav-home')">Home</a>
         <a id="nav-rooms" onclick="showPage('rooms');setActiveNav('nav-rooms')">Rooms</a>
         <a id="nav-res" onclick="showPage('reservations');setActiveNav('nav-res')">My Reservations</a>
+        <a th:href="@{/admin-login}">Admin</a>
     </div>
 
-    <div class="nav-auth-btns" id="nav-auth-btns">
+    <div class="nav-auth-btns" th:if="${session.userEmail == null}">
         <button class="btn-nav-signup" onclick="openModal('signup-modal')">Sign Up</button>
         <button class="btn-nav-login" onclick="openModal('login-modal')">Log In</button>
     </div>
 
-    <div class="user-badge" id="nav-user-badge">
+    <div class="user-badge" th:if="${session.userEmail != null}">
         <i class="fa-solid fa-circle-user"></i>
-        <span id="nav-username">Guest</span>
-        <button onclick="logoutUser()">Logout</button>
+        <span th:text="${session.userName}">Guest</span>
+        <a th:href="@{/logout}">Logout</a>
     </div>
 </nav>
 
@@ -786,7 +727,7 @@ footer{
                     Explore Rooms <i class="fa-solid fa-arrow-right"></i>
                 </button>
 
-                <button class="btn-outline" onclick="openBookingModal(null)">
+                <button class="btn-outline" onclick="openBookingModal('')">
                     Book Your Stay
                 </button>
             </div>
@@ -897,13 +838,21 @@ footer{
 
 <div id="page-reservations" class="page">
     <h2 class="page-title">My Reservations</h2>
-    <p class="page-sub">Manage your bookings at Hotel De Soleil</p>
-    <div id="reservations-list"></div>
+    <p class="page-sub">Your booking records are saved in the Railway MySQL booking table.</p>
+
+    <div th:if="${session.userEmail == null}">
+        <p style="color:var(--gray);">Please log in first to view your reservations.</p>
+    </div>
+
+    <div th:if="${session.userEmail != null}">
+        <p style="color:var(--gray);">
+            Your submitted reservations will be visible in the Admin Dashboard / Front Desk after booking.
+        </p>
+    </div>
 </div>
 
 <div class="modal-overlay" id="booking-modal">
     <div class="modal">
-
         <form th:action="@{/save-booking}" method="post" onsubmit="return confirmRealBooking()">
 
             <div class="modal-header">
@@ -913,12 +862,12 @@ footer{
 
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" id="book-name" name="fullName" required>
+                <input type="text" name="fullName" th:value="${session.userName}" required>
             </div>
 
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" id="book-email" name="email" required>
+                <input type="email" name="email" th:value="${session.userEmail}" required>
             </div>
 
             <div class="form-group">
@@ -958,11 +907,6 @@ footer{
                 </select>
             </div>
 
-            <div class="form-group">
-                <label>Special Requests</label>
-                <textarea name="specialRequests" rows="2"></textarea>
-            </div>
-
             <input type="hidden" id="priceInput" name="price">
 
             <div id="booking-summary" style="background:var(--dark3);border-radius:9px;padding:12px 14px;margin-bottom:1rem;display:none;">
@@ -971,65 +915,65 @@ footer{
             </div>
 
             <button class="btn-book" type="submit">Confirm Reservation</button>
-
         </form>
-
     </div>
 </div>
 
 <div class="modal-overlay" id="signup-modal">
     <div class="modal">
-        <div class="modal-header">
-            <h2>Create Account</h2>
-            <button class="modal-close" onclick="closeModal('signup-modal')">✕</button>
-        </div>
+        <form th:action="@{/signup}" method="post">
+            <div class="modal-header">
+                <h2>Create Account</h2>
+                <button type="button" class="modal-close" onclick="closeModal('signup-modal')">✕</button>
+            </div>
 
-        <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="signup-name">
-        </div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="fullName" required>
+            </div>
 
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="signup-email">
-        </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
 
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="signup-password">
-        </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
 
-        <button class="btn-book" onclick="signupUser()">Sign Up</button>
+            <button class="btn-book" type="submit">Sign Up</button>
+        </form>
     </div>
 </div>
 
 <div class="modal-overlay" id="login-modal">
     <div class="modal">
-        <div class="modal-header">
-            <h2>Log In</h2>
-            <button class="modal-close" onclick="closeModal('login-modal')">✕</button>
-        </div>
+        <form th:action="@{/login}" method="post">
+            <div class="modal-header">
+                <h2>Log In</h2>
+                <button type="button" class="modal-close" onclick="closeModal('login-modal')">✕</button>
+            </div>
 
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="login-email">
-        </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
 
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="login-password">
-        </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
 
-        <button class="btn-book" onclick="loginUser()">Log In</button>
+            <button class="btn-book" type="submit">Log In</button>
+        </form>
     </div>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script>
 const ROOMS = [
     {
-        id:'Economy Room',
+        id:'economy',
         name:'Economy Room',
         price:1000,
         type:'economy',
@@ -1039,7 +983,7 @@ const ROOMS = [
         capacity:2
     },
     {
-        id:'Normal Room',
+        id:'normal',
         name:'Normal Room',
         price:2500,
         type:'normal',
@@ -1049,7 +993,7 @@ const ROOMS = [
         capacity:4
     },
     {
-        id:'VIP Suite',
+        id:'vip',
         name:'VIP Suite',
         price:5000,
         type:'vip',
@@ -1059,27 +1003,6 @@ const ROOMS = [
         capacity:4
     }
 ];
-
-let users = JSON.parse(localStorage.getItem('hds_users') || '[]');
-let currentUser = JSON.parse(localStorage.getItem('hds_current_user') || 'null');
-
-function saveUsers(){
-    localStorage.setItem('hds_users', JSON.stringify(users));
-}
-
-function saveCurrentUser(){
-    localStorage.setItem('hds_current_user', JSON.stringify(currentUser));
-}
-
-function showToast(message, type='success'){
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.className = 'toast ' + type;
-    clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => {
-        toast.className = 'toast';
-    }, 3000);
-}
 
 function openModal(id){
     document.getElementById(id).classList.add('open');
@@ -1095,10 +1018,6 @@ function showPage(name){
 
     if(name === 'rooms'){
         renderRoomsPage();
-    }
-
-    if(name === 'reservations'){
-        renderReservationsPage();
     }
 
     window.scrollTo(0,0);
@@ -1123,9 +1042,9 @@ function renderRoomsPage(filter='all'){
                     ${room.amenities.map(a => `<span class="amenity-tag">${a}</span>`).join('')}
                 </div>
                 <p style="margin-top:1rem;">👥 Up to ${room.capacity} guests</p>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;gap:1rem;flex-wrap:wrap;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;">
                     <div class="room-price">₱${room.price.toLocaleString()} / night</div>
-                    <button class="btn-primary" onclick="openBookingModal('${room.id}')">Book Now</button>
+                    <button class="btn-primary" onclick="openBookingModal('${room.name}')">Book Now</button>
                 </div>
             </div>
         </div>
@@ -1139,9 +1058,9 @@ function filterRooms(type, button){
 }
 
 function getRoomPrice(roomType){
-    if(roomType === 'Economy Room') return 1000;
-    if(roomType === 'Normal Room') return 2500;
-    if(roomType === 'VIP Suite') return 5000;
+    if(roomType === "Economy Room") return 1000;
+    if(roomType === "Normal Room") return 2500;
+    if(roomType === "VIP Suite") return 5000;
     return 0;
 }
 
@@ -1152,12 +1071,6 @@ function nightsBetween(a,b){
 }
 
 function openBookingModal(roomType){
-    if(!currentUser){
-        showToast('Please log in or sign up to book a room.', 'error');
-        openModal('login-modal');
-        return;
-    }
-
     const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
@@ -1166,13 +1079,8 @@ function openBookingModal(roomType){
     document.getElementById('book-checkin').min = today;
     document.getElementById('book-checkout').min = tomorrow;
 
-    document.getElementById('book-name').value = currentUser.name;
-    document.getElementById('book-email').value = currentUser.email;
-
     if(roomType){
         document.getElementById('book-room').value = roomType;
-    }else{
-        document.getElementById('book-room').value = '';
     }
 
     updateBookingSummary();
@@ -1186,6 +1094,7 @@ function updateBookingSummary(){
     const summary = document.getElementById('booking-summary');
     const totalText = document.getElementById('booking-total');
     const priceInput = document.getElementById('priceInput');
+
     const price = getRoomPrice(roomType);
 
     if(roomType && checkIn && checkOut){
@@ -1193,117 +1102,26 @@ function updateBookingSummary(){
 
         if(nights > 0){
             const total = price * nights;
-            totalText.textContent = `₱${total.toLocaleString()} (${nights} night${nights > 1 ? 's' : ''})`;
+            totalText.textContent = "₱" + total.toLocaleString() + " (" + nights + " night" + (nights > 1 ? "s" : "") + ")";
             priceInput.value = total;
-            summary.style.display = 'block';
+            summary.style.display = "block";
             return;
         }
     }
 
-    priceInput.value = '';
-    summary.style.display = 'none';
+    priceInput.value = price;
+    summary.style.display = "none";
 }
 
 function confirmRealBooking(){
     updateBookingSummary();
 
-    const roomType = document.getElementById('book-room').value;
-    const price = document.getElementById('priceInput').value;
-
-    if(!roomType || !price || Number(price) <= 0){
-        alert('Please select a valid room and date before confirming your reservation.');
+    if(!document.getElementById('priceInput').value || document.getElementById('priceInput').value <= 0){
+        alert("Please select a valid room and date before confirming your reservation.");
         return false;
     }
 
-    return confirm('Are you sure you want to confirm this reservation?');
-}
-
-function renderReservationsPage(){
-    const list = document.getElementById('reservations-list');
-
-    if(!currentUser){
-        list.innerHTML = `
-            <div class="empty-state">
-                <h3>Please log in first.</h3>
-                <p style="color:var(--gray);margin-top:0.5rem;">Log in to view your reservations.</p>
-            </div>
-        `;
-        return;
-    }
-
-    list.innerHTML = `
-        <div class="empty-state">
-            <h3>Your reservation has been submitted to the hotel front desk.</h3>
-            <p style="color:var(--gray);margin-top:0.5rem;">The admin will manage pending, successful, canceled, and checkout records.</p>
-        </div>
-    `;
-}
-
-function signupUser(){
-    const name = document.getElementById('signup-name').value.trim();
-    const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value;
-
-    if(!name || !email || !password){
-        showToast('Please complete the sign-up form.', 'error');
-        return;
-    }
-
-    if(users.some(user => user.email === email)){
-        showToast('This email is already registered.', 'error');
-        return;
-    }
-
-    users.push({name,email,password});
-    saveUsers();
-
-    currentUser = {name,email};
-    saveCurrentUser();
-
-    closeModal('signup-modal');
-    updateNavUser();
-    showToast('Account created successfully.', 'success');
-}
-
-function loginUser(){
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-
-    const user = users.find(u => u.email === email && u.password === password);
-
-    if(!user){
-        showToast('Invalid email or password.', 'error');
-        return;
-    }
-
-    currentUser = {name:user.name,email:user.email};
-    saveCurrentUser();
-
-    closeModal('login-modal');
-    updateNavUser();
-    showToast('Logged in successfully.', 'success');
-}
-
-function logoutUser(){
-    currentUser = null;
-    localStorage.removeItem('hds_current_user');
-    updateNavUser();
-    showToast('Logged out.', 'info');
-}
-
-function updateNavUser(){
-    const authButtons = document.getElementById('nav-auth-btns');
-    const userBadge = document.getElementById('nav-user-badge');
-    const username = document.getElementById('nav-username');
-
-    if(currentUser){
-        authButtons.style.display = 'none';
-        userBadge.style.display = 'flex';
-        username.textContent = currentUser.name;
-    }else{
-        authButtons.style.display = 'flex';
-        userBadge.style.display = 'none';
-    }
+    return confirm("Are you sure you want to confirm this reservation?");
 }
 
 document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -1315,7 +1133,6 @@ document.querySelectorAll('.modal-overlay').forEach(modal => {
 });
 
 renderRoomsPage();
-updateNavUser();
 </script>
 
 </body>
