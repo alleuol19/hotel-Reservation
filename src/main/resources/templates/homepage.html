@@ -658,6 +658,58 @@ footer{
     .hero-title{
         font-size:2.8rem;
     }
+    .auth-modal{
+    width:min(560px,95vw);
+}
+
+.auth-modal .modal-header h2{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.auth-modal .modal-header h2 i{
+    color:var(--blue-light);
+}
+
+.auth-subtitle{
+    color:var(--gray);
+    font-size:0.85rem;
+    margin-bottom:1.5rem;
+}
+
+.auth-divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:1.4rem 0 0.8rem;
+    color:var(--gray);
+    font-size:0.78rem;
+}
+
+.auth-divider::before,
+.auth-divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:rgba(255,255,255,0.1);
+}
+
+.auth-switch-btn{
+    width:100%;
+    padding:12px;
+    border-radius:9px;
+    background:transparent;
+    color:var(--blue-light);
+    border:1px solid rgba(26,110,245,0.35);
+    font-weight:700;
+    cursor:pointer;
+}
+
+.auth-switch-btn.gold{
+    color:var(--gold-light);
+    border-color:rgba(201,168,76,0.45);
+}
 
     .about-grid,
     .rooms-grid,
@@ -920,55 +972,101 @@ footer{
 </div>
 
 <div class="modal-overlay" id="signup-modal">
-    <div class="modal">
+    <div class="modal auth-modal">
+
         <form th:action="@{/signup}" method="post">
+
             <div class="modal-header">
-                <h2>Create Account</h2>
+                <h2><i class="fa-solid fa-user-plus"></i> Create Account</h2>
                 <button type="button" class="modal-close" onclick="closeModal('signup-modal')">✕</button>
             </div>
 
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" name="fullName" required>
+            <p class="auth-subtitle">Join Hotel De Soleil to manage your reservations.</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> First Name</label>
+                    <input type="text" name="firstName" placeholder="Juan" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Last Name</label>
+                    <input type="text" name="lastName" placeholder="dela Cruz" required>
+                </div>
             </div>
 
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" required>
+                <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+                <input type="email" name="email" placeholder="juan@email.com" required>
             </div>
 
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" required>
+                <label><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" name="password" placeholder="At least 6 characters" required>
             </div>
 
-            <button class="btn-book" type="submit">Sign Up</button>
+            <div class="form-group">
+                <label><i class="fa-solid fa-lock"></i> Confirm Password</label>
+                <input type="password" placeholder="Repeat password" required>
+            </div>
+
+            <button class="btn-book" type="submit">
+                <i class="fa-solid fa-user-check"></i> Create Account
+            </button>
+
+            <div class="auth-divider">
+                <span>Already have an account?</span>
+            </div>
+
+            <button type="button" class="auth-switch-btn" onclick="closeModal('signup-modal'); openModal('login-modal');">
+                <i class="fa-solid fa-right-to-bracket"></i> Log In Instead
+            </button>
+
         </form>
+
     </div>
 </div>
 
 <div class="modal-overlay" id="login-modal">
-    <div class="modal">
+    <div class="modal auth-modal">
+
         <form th:action="@{/login}" method="post">
+
             <div class="modal-header">
-                <h2>Log In</h2>
+                <h2><i class="fa-solid fa-right-to-bracket"></i> Welcome Back</h2>
                 <button type="button" class="modal-close" onclick="closeModal('login-modal')">✕</button>
             </div>
 
+            <p class="auth-subtitle">Log in to view and manage your reservations.</p>
+
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" required>
+                <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+                <input type="email" name="email" placeholder="juan@email.com" required>
             </div>
 
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" required>
+                <label><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" name="password" placeholder="Your password" required>
             </div>
 
-            <button class="btn-book" type="submit">Log In</button>
+            <button class="btn-book" type="submit">
+                <i class="fa-solid fa-right-to-bracket"></i> Log In
+            </button>
+
+            <div class="auth-divider">
+                <span>New here?</span>
+            </div>
+
+            <button type="button" class="auth-switch-btn gold" onclick="closeModal('login-modal'); openModal('signup-modal');">
+                <i class="fa-solid fa-user-plus"></i> Create an Account
+            </button>
+
         </form>
+
     </div>
 </div>
+
+
 
 <script>
 const ROOMS = [
