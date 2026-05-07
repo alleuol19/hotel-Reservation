@@ -738,7 +738,7 @@ footer{
         <a class="active" id="nav-home" onclick="showPage('home');setActiveNav('nav-home')">Home</a>
         <a id="nav-rooms" onclick="showPage('rooms');setActiveNav('nav-rooms')">Rooms</a>
         <a id="nav-res" onclick="showPage('reservations');setActiveNav('nav-res')">My Reservations</a>
-        <a th:href="@{/admin-login}">Admin</a>
+        
     </div>
 
     <div class="nav-auth-btns" th:if="${session.userEmail == null}">
