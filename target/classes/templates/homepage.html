@@ -296,6 +296,7 @@
     </div>
 
     <div class="nav-links">
+    <a href="#" onclick="openFrontDesk()">Front Desk</a>
         <a href="#home">Home</a>
         <a href="#about">About</a>
         <a href="#rooms">Rooms</a>
@@ -474,6 +475,21 @@
 <div class="footer">
     © 2026 Hotel De Soleil | All Rights Reserved
 </div>
+
+<script>
+    function openFrontDesk(){
+
+        let code = prompt("Enter Front Desk Access Code");
+
+        if(code === "SOLEIL2026"){
+            window.location.href = "/front-desk";
+        }
+        else{
+            alert("Access denied. Unauthorized users are not allowed to access the Front Desk system.");
+            window.location.href = "/";
+        }
+    }
+</script>
 
 </body>
 </html>
