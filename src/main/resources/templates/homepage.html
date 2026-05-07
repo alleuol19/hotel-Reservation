@@ -849,7 +849,7 @@ footer{
             <div class="contact-item">
                 <div class="icon">✉️</div>
                 <strong>Email</strong>
-                <p>HotelDeSoleil@gmail.com</p>
+                <p>hoteldesoleil@gmail.com</p>
             </div>
 
             <div class="contact-item">
@@ -967,7 +967,28 @@ footer{
                 <p id="booking-total" style="font-size:1.2rem;font-weight:700;color:var(--blue-light);"></p>
             </div>
 
-            <button class="btn-book" type="submit">Confirm Reservation</button>
+            <div th:if="${session.userEmail == null}">
+
+    <button
+        type="button"
+        class="btn-book"
+        onclick="alert('Please log in first before booking.')">
+
+        Log In First To Book
+
+    </button>
+
+</div>
+
+<div th:if="${session.userEmail != null}">
+
+    <button class="btn-book" type="submit">
+
+        Confirm Reservation
+
+    </button>
+
+</div>
         </form>
     </div>
 </div>

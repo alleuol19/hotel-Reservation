@@ -318,8 +318,14 @@ public class AuthController {
 	        HttpSession session
 	) {
 
-	    if(username.equals("admin") && password.equals("Hotel123")) {
-
+		if (
+			    (username.equals("admin") ||
+			     username.equals("Admin") ||
+			     username.equals("ADMIN"))
+			    &&
+			    password.equals("1234")
+			)
+		{
 	        session.setAttribute("admin", true);
 
 	        return "redirect:/admin-dashboard";
