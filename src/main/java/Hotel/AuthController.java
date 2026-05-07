@@ -318,4 +318,37 @@ public class AuthController {
 
         return rooms;
     }
+    @PostMapping("/checkout-booking")
+    public String checkoutBooking(@RequestParam int id) {
+
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String insertSql =
+                    "INSERT INTO checkout_records " +
+                    "(booking_id, full_name, contact_number, email, check_in_date, check_out_date, room_type, guests, price, payment_method, room_number) " +
+                    "SELECT id, full_name, contact_number, email, check_in_date, check_out_date, room_type, guests, price, payment_method, room_number " +
+                    "FROM booking WHERE id = ?";
+
+            PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+            insertStmt.setInt(1, id);
+            insertStmt.executeUpdate();
+
+            insertStmt.close();
+
+            String deleteSql = "DELETE FROM booking WHERE id = ?";
+
+            PreparedStatement deleteStmt = conn.prepareStatement(deleteSql);
+            deleteStmt.setInt(1, id);
+            deleteStmt.executeUpdate();
+
+            deleteStmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/front-desk?status=SUCCESSFUL";
+    }
 }

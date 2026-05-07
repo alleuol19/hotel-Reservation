@@ -356,6 +356,19 @@
             </button>
 
         </form>
+        <form th:if="${booking.status == 'SUCCESSFUL'}"
+      th:action="@{/checkout-booking}"
+      method="post"
+      style="display:inline-block;">
+
+    <input type="hidden" name="id" th:value="${booking.id}">
+
+    <button class="action-btn confirm-btn" type="submit"
+            onclick="return confirm('Are you sure you want to check out this guest? This booking will be moved to checkout records.');">
+        Check Out
+    </button>
+
+</form>
 
     </td>
 
