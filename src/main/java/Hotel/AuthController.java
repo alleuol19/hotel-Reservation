@@ -27,7 +27,48 @@ public class AuthController {
 	static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
 	
 	@GetMapping("/")
-	public String homepage() {
+	public String homepage(HttpSession session, Model model) {
+
+	    String userEmail = (String) session.getAttribute("userEmail");
+
+	    List<Map<String, Object>> myReservations = new ArrayList<>();
+
+	    if (userEmail != null) {
+
+	        try {
+	            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+	            String sql = "SELECT * FROM booking WHERE email = ? ORDER BY id DESC";
+	            PreparedStatement stmt = conn.prepareStatement(sql);
+
+	            stmt.setString(1, userEmail);
+
+	            ResultSet rs = stmt.executeQuery();
+
+	            while (rs.next()) {
+	                Map<String, Object> booking = new HashMap<>();
+
+	                booking.put("roomType", rs.getString("room_type"));
+	                booking.put("checkInDate", rs.getString("check_in_date"));
+	                booking.put("checkOutDate", rs.getString("check_out_date"));
+	                booking.put("status", rs.getString("status"));
+	                booking.put("price", rs.getDouble("price"));
+	                booking.put("roomNumber", rs.getString("room_number"));
+
+	                myReservations.add(booking);
+	            }
+
+	            rs.close();
+	            stmt.close();
+	            conn.close();
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    model.addAttribute("myReservations", myReservations);
+
 	    return "homepage";
 	}
 

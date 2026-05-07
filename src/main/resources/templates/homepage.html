@@ -889,7 +889,60 @@ footer{
     <div class="rooms-list" id="rooms-list"></div>
 </div>
 
+
 <div id="page-reservations" class="page">
+    <h2 class="page-title">My Reservations</h2>
+    <p class="page-sub">Manage your bookings at Hotel De Soleil</p>
+
+    <div th:if="${session.userEmail == null}" style="text-align:center;margin-top:120px;">
+        <i class="fa-regular fa-envelope" style="font-size:3rem;color:rgba(255,255,255,0.1);"></i>
+        <h3 style="margin-top:20px;color:var(--gray);">Not logged in</h3>
+        <p style="color:var(--gray);margin:10px 0 25px;">Please log in or sign up to view your reservations.</p>
+
+        <button class="btn-primary" onclick="openModal('login-modal')">
+            <i class="fa-solid fa-right-to-bracket"></i> Log In
+        </button>
+    </div>
+
+    <div th:if="${session.userEmail != null and #lists.isEmpty(myReservations)}" style="text-align:center;margin-top:120px;">
+        <i class="fa-regular fa-calendar-xmark" style="font-size:3rem;color:rgba(255,255,255,0.1);"></i>
+        <h3 style="margin-top:20px;color:var(--gray);">No reservations yet</h3>
+        <p style="color:var(--gray);margin:10px 0 25px;">Explore our rooms and book your perfect stay.</p>
+
+        <button class="btn-primary" onclick="showPage('rooms');setActiveNav('nav-rooms')">
+            Browse Rooms
+        </button>
+    </div>
+
+    <div th:if="${session.userEmail != null and !#lists.isEmpty(myReservations)}">
+        <div class="res-card" th:each="booking : ${myReservations}">
+            <div class="res-info">
+                <h3 th:text="${booking.roomType}">Room Type</h3>
+                <p>
+                    Check-in:
+                    <span th:text="${booking.checkInDate}"></span>
+                    |
+                    Check-out:
+                    <span th:text="${booking.checkOutDate}"></span>
+                </p>
+                <p>
+                    Room No:
+                    <span th:text="${booking.roomNumber != null ? booking.roomNumber : 'Not assigned yet'}"></span>
+                </p>
+                <p>
+                    Total:
+                    ₱<span th:text="${booking.price}"></span>
+                </p>
+            </div>
+
+            <div>
+                <span class="res-status" th:classappend="${booking.status}" th:text="${booking.status}">
+                    PENDING
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
     <h2 class="page-title">My Reservations</h2>
     <p class="page-sub">Your booking records are saved in the Railway MySQL booking table.</p>
 
