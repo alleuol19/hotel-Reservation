@@ -458,4 +458,9 @@ public class AuthController {
 
 	    return "redirect:/admin-dashboard";
 	}
+	@GetMapping("/admin-logout")
+	public String adminLogout(HttpSession session) {
+	    session.removeAttribute("admin");
+	    return "redirect:/admin-login";
+	}
 }
