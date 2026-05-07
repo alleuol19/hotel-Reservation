@@ -1,850 +1,411 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hotel De Soleil — Admin Dashboard</title>
+package Hotel;
 
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+import java.sql.*;
+import java.util.*;
 
-<style>
-:root{
-    --black:#0a0a0f;
-    --dark:#111118;
-    --dark2:#1a1a24;
-    --dark3:#22222e;
-    --blue:#1a6ef5;
-    --blue-light:#3d8bff;
-    --blue-glow:rgba(26,110,245,0.18);
-    --white:#ffffff;
-    --off-white:#e8e8f0;
-    --gray:#8888a0;
-    --gold:#c9a84c;
-    --gold-light:#e8c97a;
-}
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
+import jakarta.servlet.http.HttpSession;
 
-body{
-    font-family:'Montserrat', sans-serif;
-    background:var(--black);
-    color:var(--white);
-    min-height:100vh;
-}
+@Controller
+public class AuthController {
 
-.topbar{
-    position:sticky;
-    top:0;
-    z-index:100;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 2rem;
-    height:64px;
-    background:rgba(10,10,15,0.97);
-    backdrop-filter:blur(16px);
-    border-bottom:1px solid rgba(201,168,76,0.15);
-}
+    static String url = "jdbc:mysql://mysql.railway.internal:3306/railway";
+    static String dbUser = "root";
+    static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
 
-.topbar-brand{
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
-
-.topbar-logo{
-    width:40px;
-    height:40px;
-    object-fit:contain;
-    border-radius:50%;
-}
-
-.topbar-title{
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.25rem;
-    color:var(--gold-light);
-    font-weight:600;
-    letter-spacing:0.05em;
-}
-
-.topbar-badge{
-    background:rgba(245,60,60,0.12);
-    color:#f57c3c;
-    border:1px solid rgba(245,160,60,0.3);
-    border-radius:5px;
-    padding:2px 9px;
-    font-size:0.68rem;
-    font-weight:700;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    margin-left:8px;
-}
-
-.topbar-right{
-    display:flex;
-    align-items:center;
-    gap:16px;
-}
-
-.topbar-user{
-    font-size:0.83rem;
-    color:var(--off-white);
-}
-
-.btn-logout{
-    padding:7px 16px;
-    font-size:0.78rem;
-    font-weight:600;
-    background:rgba(245,60,60,0.1);
-    color:#f53c3c;
-    border:1px solid rgba(245,60,60,0.2);
-    border-radius:7px;
-    text-decoration:none;
-}
-
-.admin-body{
-    display:flex;
-    min-height:calc(100vh - 64px);
-}
-
-.sidebar{
-    width:230px;
-    flex-shrink:0;
-    background:var(--dark2);
-    border-right:1px solid rgba(255,255,255,0.055);
-    padding:1.5rem 0;
-}
-
-.sidebar-label{
-    padding:0 1.4rem;
-    font-size:0.67rem;
-    font-weight:700;
-    color:var(--gray);
-    letter-spacing:0.16em;
-    text-transform:uppercase;
-    margin-bottom:0.5rem;
-}
-
-.sidebar-link{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:9px 1.4rem;
-    font-size:0.85rem;
-    font-weight:500;
-    color:var(--gray);
-    cursor:pointer;
-    transition:0.18s;
-    border-left:2px solid transparent;
-}
-
-.sidebar-link:hover{
-    color:var(--off-white);
-    background:rgba(255,255,255,0.03);
-}
-
-.sidebar-link.active{
-    color:var(--blue-light);
-    background:rgba(26,110,245,0.1);
-    border-left-color:var(--blue);
-}
-
-.sidebar-link .ico{
-    font-size:1rem;
-    width:20px;
-    text-align:center;
-}
-
-.main-content{
-    flex:1;
-    padding:2.5rem;
-    overflow-x:auto;
-    background:var(--dark);
-}
-
-.admin-section{
-    display:none;
-}
-
-.admin-section.active{
-    display:block;
-}
-
-.page-title{
-    font-family:'Cormorant Garamond', serif;
-    font-size:2.2rem;
-    font-weight:400;
-    margin-bottom:0.3rem;
-}
-
-.page-sub{
-    color:var(--gray);
-    font-size:0.83rem;
-    margin-bottom:2.2rem;
-}
-
-.stats-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:16px;
-    margin-bottom:2.5rem;
-}
-
-.stat-card{
-    background:var(--dark2);
-    border-radius:12px;
-    padding:1.4rem;
-    border:1px solid rgba(255,255,255,0.055);
-}
-
-.stat-label{
-    font-size:0.72rem;
-    color:var(--gray);
-    font-weight:600;
-    letter-spacing:0.09em;
-    text-transform:uppercase;
-    margin-bottom:0.4rem;
-}
-
-.stat-value{
-    font-size:2rem;
-    font-weight:700;
-    color:var(--blue-light);
-}
-
-.stat-sub{
-    font-size:0.73rem;
-    color:var(--gray);
-    margin-top:0.15rem;
-}
-
-.table-wrap{
-    background:var(--dark2);
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,0.055);
-    overflow:hidden;
-    margin-bottom:2rem;
-}
-
-.table-head{
-    padding:1.1rem 1.5rem;
-    border-bottom:1px solid rgba(255,255,255,0.055);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.table-head h3{
-    font-size:0.97rem;
-    font-weight:700;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th{
-    background:rgba(255,255,255,0.025);
-    padding:11px 14px;
-    font-size:0.72rem;
-    font-weight:700;
-    color:var(--gray);
-    text-transform:uppercase;
-    letter-spacing:0.09em;
-    text-align:left;
-}
-
-td{
-    padding:12px 14px;
-    font-size:0.83rem;
-    color:var(--off-white);
-    border-bottom:1px solid rgba(255,255,255,0.04);
-    vertical-align:top;
-}
-
-tr:last-child td{
-    border-bottom:none;
-}
-
-.res-status{
-    padding:4px 12px;
-    border-radius:20px;
-    font-size:0.72rem;
-    font-weight:700;
-    letter-spacing:0.07em;
-    text-transform:uppercase;
-    display:inline-block;
-}
-
-.res-status.pending{
-    background:rgba(245,180,26,0.12);
-    color:#f5b41a;
-    border:1px solid rgba(245,180,26,0.22);
-}
-
-.res-status.successful{
-    background:rgba(26,245,140,0.12);
-    color:#26f58c;
-    border:1px solid rgba(26,245,140,0.22);
-}
-
-.res-status.cancelled{
-    background:rgba(245,60,60,0.12);
-    color:#f53c3c;
-    border:1px solid rgba(245,60,60,0.22);
-}
-
-.action-btns{
-    display:flex;
-    gap:6px;
-    flex-wrap:wrap;
-}
-
-.action-btns form{
-    display:inline-flex;
-    gap:6px;
-    align-items:center;
-}
-
-.payment-select{
-    padding:6px 8px;
-    background:var(--dark3);
-    color:var(--off-white);
-    border:1px solid rgba(255,255,255,0.1);
-    border-radius:6px;
-    font-size:0.73rem;
-}
-
-.btn-sm{
-    padding:6px 11px;
-    font-size:0.73rem;
-    font-weight:600;
-    border-radius:6px;
-    cursor:pointer;
-    transition:0.18s;
-    border:none;
-}
-
-.btn-sm-blue{
-    background:var(--blue-glow);
-    color:var(--blue-light);
-    border:1px solid rgba(26,110,245,0.22);
-}
-
-.btn-sm-red{
-    background:rgba(245,60,60,0.1);
-    color:#f53c3c;
-    border:1px solid rgba(245,60,60,0.2);
-}
-
-.btn-sm-green{
-    background:rgba(26,245,140,0.1);
-    color:#26f58c;
-    border:1px solid rgba(26,245,140,0.2);
-}
-
-.empty-msg{
-    padding:20px;
-    color:var(--gray);
-    font-size:0.85rem;
-}
-
-.rooms-manage-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:16px;
-}
-
-.room-manage-card{
-    background:var(--dark2);
-    border-radius:12px;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,0.055);
-}
-
-.room-manage-card img{
-    width:100%;
-    height:145px;
-    object-fit:cover;
-}
-
-.room-manage-body{
-    padding:1rem;
-}
-
-.room-manage-body h4{
-    font-size:0.93rem;
-    font-weight:700;
-    margin-bottom:0.3rem;
-}
-
-.room-manage-body p{
-    font-size:0.77rem;
-    color:var(--gray);
-    margin-bottom:0.7rem;
-}
-
-.amenity-tag{
-    padding:3px 10px;
-    font-size:0.7rem;
-    font-weight:600;
-    background:rgba(26,110,245,0.12);
-    color:var(--blue-light);
-    border-radius:20px;
-    border:1px solid rgba(26,110,245,0.2);
-    display:inline-block;
-    margin:2px;
-}
-
-@media(max-width:900px){
-    .stats-grid{
-        grid-template-columns:1fr 1fr;
+    @GetMapping("/")
+    public String homepage() {
+        return "homepage";
     }
 
-    .admin-body{
-        flex-direction:column;
+    @PostMapping("/signup")
+    public String signup(
+            @RequestParam String firstName,
+            @RequestParam String lastName,
+            @RequestParam String email,
+            @RequestParam String password,
+            HttpSession session
+    ) {
+        String fullName = firstName + " " + lastName;
+
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String sql = "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, fullName);
+            stmt.setString(2, email);
+            stmt.setString(3, password);
+
+            stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
+
+            session.setAttribute("userName", fullName);
+            session.setAttribute("userEmail", email);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/";
     }
 
-    .sidebar{
-        width:100%;
-        display:flex;
-        flex-wrap:wrap;
-        gap:4px;
-        padding:0.8rem;
-        border-right:none;
-        border-bottom:1px solid rgba(255,255,255,0.055);
+    @PostMapping("/login")
+    public String login(
+            @RequestParam String email,
+            @RequestParam String password,
+            HttpSession session
+    ) {
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, email);
+            stmt.setString(2, password);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                session.setAttribute("userName", rs.getString("full_name"));
+                session.setAttribute("userEmail", rs.getString("email"));
+            }
+
+            rs.close();
+            stmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/";
     }
 
-    .sidebar-label{
-        display:none;
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
     }
 
-    .main-content{
-        padding:1.5rem;
+    @PostMapping("/save-booking")
+    public String saveBooking(
+            @RequestParam String fullName,
+            @RequestParam String contactNumber,
+            @RequestParam String email,
+            @RequestParam String checkInDate,
+            @RequestParam String checkOutDate,
+            @RequestParam String roomType,
+            @RequestParam int guests,
+            @RequestParam double price
+    ) {
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String sql = "INSERT INTO booking " +
+                    "(full_name, contact_number, email, check_in_date, check_out_date, room_type, guests, price, status) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
+
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, fullName);
+            stmt.setString(2, contactNumber);
+            stmt.setString(3, email);
+            stmt.setString(4, checkInDate);
+            stmt.setString(5, checkOutDate);
+            stmt.setString(6, roomType);
+            stmt.setInt(7, guests);
+            stmt.setDouble(8, price);
+
+            stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/";
     }
 
-    .rooms-manage-grid{
-        grid-template-columns:1fr;
+    @GetMapping("/admin-login")
+    public String adminLogin() {
+        return "admin-login";
+    }
+
+    @PostMapping("/admin-access")
+    public String adminAccess(
+            @RequestParam String username,
+            @RequestParam String password,
+            HttpSession session
+    ) {
+        if (username.equals("admin") && password.equals("Hotel123")) {
+            session.setAttribute("admin", true);
+            return "redirect:/admin-dashboard";
+        }
+
+        return "redirect:/admin-login";
+    }
+
+    @GetMapping("/admin-logout")
+    public String adminLogout(HttpSession session) {
+        session.removeAttribute("admin");
+        return "redirect:/admin-login";
+    }
+
+    @GetMapping("/admin-dashboard")
+    public String adminDashboard(HttpSession session, Model model) {
+
+        if (session.getAttribute("admin") == null) {
+            return "redirect:/admin-login";
+        }
+
+        List<Map<String, Object>> pendingBookings = new ArrayList<>();
+        List<Map<String, Object>> successfulBookings = new ArrayList<>();
+        List<Map<String, Object>> cancelledBookings = new ArrayList<>();
+        List<Map<String, Object>> users = new ArrayList<>();
+
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String bookingSql = "SELECT * FROM booking ORDER BY id DESC";
+            PreparedStatement bookingStmt = conn.prepareStatement(bookingSql);
+            ResultSet rs = bookingStmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> booking = new HashMap<>();
+
+                booking.put("id", rs.getInt("id"));
+                booking.put("fullName", rs.getString("full_name"));
+                booking.put("contactNumber", rs.getString("contact_number"));
+                booking.put("email", rs.getString("email"));
+                booking.put("checkInDate", rs.getString("check_in_date"));
+                booking.put("checkOutDate", rs.getString("check_out_date"));
+                booking.put("roomType", rs.getString("room_type"));
+                booking.put("guests", rs.getInt("guests"));
+                booking.put("price", rs.getDouble("price"));
+                booking.put("status", rs.getString("status"));
+                booking.put("paymentMethod", rs.getString("payment_method"));
+                booking.put("roomNumber", rs.getString("room_number"));
+
+                String status = rs.getString("status");
+
+                if ("PENDING".equals(status)) {
+                    pendingBookings.add(booking);
+                } else if ("SUCCESSFUL".equals(status)) {
+                    successfulBookings.add(booking);
+                } else if ("CANCELED".equals(status)) {
+                    cancelledBookings.add(booking);
+                }
+            }
+
+            rs.close();
+            bookingStmt.close();
+
+            String userSql = "SELECT * FROM users ORDER BY id DESC";
+            PreparedStatement userStmt = conn.prepareStatement(userSql);
+            ResultSet userRs = userStmt.executeQuery();
+
+            while (userRs.next()) {
+                Map<String, Object> user = new HashMap<>();
+
+                user.put("id", userRs.getInt("id"));
+                user.put("fullName", userRs.getString("full_name"));
+                user.put("email", userRs.getString("email"));
+
+                users.add(user);
+            }
+
+            userRs.close();
+            userStmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("pendingBookings", pendingBookings);
+        model.addAttribute("successfulBookings", successfulBookings);
+        model.addAttribute("cancelledBookings", cancelledBookings);
+        model.addAttribute("users", users);
+
+        return "admin-dashboard";
+    }
+
+    @PostMapping("/confirm-booking")
+    public String confirmBooking(
+            @RequestParam int bookingId,
+            @RequestParam String paymentMethod
+    ) {
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String roomType = "";
+
+            String getRoomSql = "SELECT room_type FROM booking WHERE id = ?";
+            PreparedStatement getStmt = conn.prepareStatement(getRoomSql);
+            getStmt.setInt(1, bookingId);
+
+            ResultSet rs = getStmt.executeQuery();
+
+            if (rs.next()) {
+                roomType = rs.getString("room_type");
+            }
+
+            rs.close();
+            getStmt.close();
+
+            List<String> availableRooms = getAvailableRooms(conn, roomType);
+
+            if (availableRooms.isEmpty()) {
+                conn.close();
+                return "redirect:/admin-dashboard";
+            }
+
+            String assignedRoom = availableRooms.get(0);
+
+            String updateSql = "UPDATE booking SET status='SUCCESSFUL', payment_method=?, room_number=? WHERE id=?";
+            PreparedStatement stmt = conn.prepareStatement(updateSql);
+
+            stmt.setString(1, paymentMethod);
+            stmt.setString(2, assignedRoom);
+            stmt.setInt(3, bookingId);
+
+            stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/admin-dashboard";
+    }
+
+    @PostMapping("/cancel-booking")
+    public String cancelBooking(@RequestParam int bookingId) {
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String sql = "UPDATE booking SET status='CANCELED' WHERE id=?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setInt(1, bookingId);
+            stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/admin-dashboard";
+    }
+
+    @PostMapping("/checkout-booking")
+    public String checkoutBooking(@RequestParam int bookingId) {
+        try {
+            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+            String getSql = "SELECT * FROM booking WHERE id=?";
+            PreparedStatement getStmt = conn.prepareStatement(getSql);
+            getStmt.setInt(1, bookingId);
+
+            ResultSet rs = getStmt.executeQuery();
+
+            if (rs.next()) {
+                String insertSql = "INSERT INTO checkout_records " +
+                        "(booking_id, full_name, contact_number, email, check_in_date, check_out_date, room_type, guests, price, payment_method, room_number) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+                PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+
+                insertStmt.setInt(1, rs.getInt("id"));
+                insertStmt.setString(2, rs.getString("full_name"));
+                insertStmt.setString(3, rs.getString("contact_number"));
+                insertStmt.setString(4, rs.getString("email"));
+                insertStmt.setString(5, rs.getString("check_in_date"));
+                insertStmt.setString(6, rs.getString("check_out_date"));
+                insertStmt.setString(7, rs.getString("room_type"));
+                insertStmt.setInt(8, rs.getInt("guests"));
+                insertStmt.setDouble(9, rs.getDouble("price"));
+                insertStmt.setString(10, rs.getString("payment_method"));
+                insertStmt.setString(11, rs.getString("room_number"));
+
+                insertStmt.executeUpdate();
+                insertStmt.close();
+            }
+
+            rs.close();
+            getStmt.close();
+
+            String deleteSql = "DELETE FROM booking WHERE id=?";
+            PreparedStatement deleteStmt = conn.prepareStatement(deleteSql);
+
+            deleteStmt.setInt(1, bookingId);
+            deleteStmt.executeUpdate();
+
+            deleteStmt.close();
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/admin-dashboard";
+    }
+
+    private List<String> getAvailableRooms(Connection conn, String roomType) {
+
+        List<String> rooms = new ArrayList<>();
+
+        int start = 101;
+        int end = 110;
+
+        if ("Economy Room".equals(roomType)) {
+            start = 101;
+            end = 110;
+        } else if ("Normal Room".equals(roomType)) {
+            start = 201;
+            end = 210;
+        } else if ("VIP Suite".equals(roomType)) {
+            start = 301;
+            end = 310;
+        }
+
+        try {
+            for (int i = start; i <= end; i++) {
+                String roomNumber = "R" + i;
+
+                String sql = "SELECT COUNT(*) FROM booking WHERE room_number = ? AND status = 'SUCCESSFUL'";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+
+                stmt.setString(1, roomNumber);
+
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next() && rs.getInt(1) == 0) {
+                    rooms.add(roomNumber);
+                }
+
+                rs.close();
+                stmt.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return rooms;
     }
 }
-</style>
-</head>
-
-<body>
-
-<div class="topbar">
-
-    <div class="topbar-brand">
-        <img class="topbar-logo" src="/images/logo.png" alt="Hotel De Soleil Logo">
-        <div>
-            <span class="topbar-title">Hotel De Soleil</span>
-            <span class="topbar-badge">Admin</span>
-        </div>
-    </div>
-
-    <div class="topbar-right">
-        <span class="topbar-user">
-            <i class="fa-solid fa-user-shield"></i>
-            Administrator
-        </span>
-
-        <a class="btn-logout" th:href="@{/admin-logout}">
-            Logout
-        </a>
-    </div>
-
-</div>
-
-<div class="admin-body">
-
-    <aside class="sidebar">
-
-        <div class="sidebar-section">
-            <div class="sidebar-label">Dashboard</div>
-
-            <div class="sidebar-link active" onclick="showSection('overview', this)">
-                <span class="ico"><i class="fa-solid fa-chart-line"></i></span>
-                Overview
-            </div>
-
-            <div class="sidebar-link" onclick="showSection('pending', this)">
-                <span class="ico"><i class="fa-solid fa-clock"></i></span>
-                Pending Bookings
-            </div>
-
-            <div class="sidebar-link" onclick="showSection('successful', this)">
-                <span class="ico"><i class="fa-solid fa-circle-check"></i></span>
-                Successful Bookings
-            </div>
-
-            <div class="sidebar-link" onclick="showSection('cancelled', this)">
-                <span class="ico"><i class="fa-solid fa-circle-xmark"></i></span>
-                Cancelled Bookings
-            </div>
-
-            <div class="sidebar-link" onclick="showSection('rooms', this)">
-                <span class="ico"><i class="fa-solid fa-bed"></i></span>
-                Rooms
-            </div>
-        </div>
-
-    </aside>
-
-    <main class="main-content">
-
-        <section id="overview" class="admin-section active">
-
-            <h1 class="page-title">Admin Overview</h1>
-            <p class="page-sub">Monitor booking records saved in Railway MySQL.</p>
-
-            <div class="stats-grid">
-
-                <div class="stat-card">
-                    <div class="stat-label">Pending</div>
-                    <div class="stat-value" th:text="${#lists.size(pendingBookings)}">0</div>
-                    <div class="stat-sub">Awaiting confirmation</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-label">Successful</div>
-                    <div class="stat-value" th:text="${#lists.size(successfulBookings)}">0</div>
-                    <div class="stat-sub">Confirmed bookings</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-label">Cancelled</div>
-                    <div class="stat-value" th:text="${#lists.size(cancelledBookings)}">0</div>
-                    <div class="stat-sub">Cancelled bookings</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-label">Total Active</div>
-                    <div class="stat-value"
-                         th:text="${#lists.size(pendingBookings) + #lists.size(successfulBookings) + #lists.size(cancelledBookings)}">
-                        0
-                    </div>
-                    <div class="stat-sub">All booking records</div>
-                </div>
-
-            </div>
-
-            <div class="table-wrap">
-                <div class="table-head">
-                    <h3>Latest Pending Bookings</h3>
-                </div>
-
-                <div th:if="${#lists.isEmpty(pendingBookings)}" class="empty-msg">
-                    No pending bookings yet.
-                </div>
-
-                <table th:if="${!#lists.isEmpty(pendingBookings)}">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Guest</th>
-                            <th>Room</th>
-                            <th>Dates</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr th:each="booking : ${pendingBookings}">
-                            <td th:text="${booking.id}">1</td>
-                            <td>
-                                <strong th:text="${booking.fullName}">Guest Name</strong><br>
-                                <span th:text="${booking.email}">email</span><br>
-                                <span th:text="${booking.contactNumber}">contact</span>
-                            </td>
-                            <td th:text="${booking.roomType}">Economy Room</td>
-                            <td>
-                                <span th:text="${booking.checkInDate}">Check in</span>
-                                →
-                                <span th:text="${booking.checkOutDate}">Check out</span>
-                            </td>
-                            <td>₱<span th:text="${booking.price}">0</span></td>
-                            <td><span class="res-status pending">Pending</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </section>
-
-        <section id="pending" class="admin-section">
-
-            <h1 class="page-title">Pending Bookings</h1>
-            <p class="page-sub">Confirm payment and approve reservations.</p>
-
-            <div class="table-wrap">
-                <div class="table-head">
-                    <h3>Pending Booking List</h3>
-                </div>
-
-                <div th:if="${#lists.isEmpty(pendingBookings)}" class="empty-msg">
-                    No pending bookings.
-                </div>
-
-                <table th:if="${!#lists.isEmpty(pendingBookings)}">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Guest</th>
-                            <th>Room</th>
-                            <th>Guests</th>
-                            <th>Dates</th>
-                            <th>Total</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr th:each="booking : ${pendingBookings}">
-                            <td th:text="${booking.id}">1</td>
-
-                            <td>
-                                <strong th:text="${booking.fullName}">Guest</strong><br>
-                                <span th:text="${booking.email}">Email</span><br>
-                                <span th:text="${booking.contactNumber}">Contact</span>
-                            </td>
-
-                            <td th:text="${booking.roomType}">Room</td>
-                            <td th:text="${booking.guests}">1</td>
-
-                            <td>
-                                <span th:text="${booking.checkInDate}"></span>
-                                →
-                                <span th:text="${booking.checkOutDate}"></span>
-                            </td>
-
-                            <td>₱<span th:text="${booking.price}">0</span></td>
-
-                            <td>
-                                <div class="action-btns">
-
-                                    <form th:action="@{/confirm-booking}" method="post">
-                                        <input type="hidden" name="bookingId" th:value="${booking.id}">
-
-                                        <select name="paymentMethod" class="payment-select" required>
-                                            <option value="">Payment</option>
-                                            <option value="Cash">Cash</option>
-                                            <option value="Card">Card</option>
-                                            <option value="GCash">GCash</option>
-                                        </select>
-
-                                        <button type="submit" class="btn-sm btn-sm-green"
-                                                onclick="return confirm('Confirm this booking and assign an available room?');">
-                                            Confirm
-                                        </button>
-                                    </form>
-
-                                    <form th:action="@{/cancel-booking}" method="post">
-                                        <input type="hidden" name="bookingId" th:value="${booking.id}">
-
-                                        <button type="submit" class="btn-sm btn-sm-red"
-                                                onclick="return confirm('Cancel this booking?');">
-                                            Cancel
-                                        </button>
-                                    </form>
-
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </section>
-
-        <section id="successful" class="admin-section">
-
-            <h1 class="page-title">Successful Bookings</h1>
-            <p class="page-sub">Confirmed guests ready for checkout.</p>
-
-            <div class="table-wrap">
-                <div class="table-head">
-                    <h3>Successful Booking List</h3>
-                </div>
-
-                <div th:if="${#lists.isEmpty(successfulBookings)}" class="empty-msg">
-                    No successful bookings.
-                </div>
-
-                <table th:if="${!#lists.isEmpty(successfulBookings)}">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Guest</th>
-                            <th>Room Type</th>
-                            <th>Room No.</th>
-                            <th>Payment</th>
-                            <th>Dates</th>
-                            <th>Total</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr th:each="booking : ${successfulBookings}">
-                            <td th:text="${booking.id}">1</td>
-
-                            <td>
-                                <strong th:text="${booking.fullName}">Guest</strong><br>
-                                <span th:text="${booking.email}">Email</span><br>
-                                <span th:text="${booking.contactNumber}">Contact</span>
-                            </td>
-
-                            <td th:text="${booking.roomType}">Room</td>
-                            <td th:text="${booking.roomNumber}">R101</td>
-                            <td th:text="${booking.paymentMethod}">Cash</td>
-
-                            <td>
-                                <span th:text="${booking.checkInDate}"></span>
-                                →
-                                <span th:text="${booking.checkOutDate}"></span>
-                            </td>
-
-                            <td>₱<span th:text="${booking.price}">0</span></td>
-
-                            <td>
-                                <form th:action="@{/checkout-booking}" method="post">
-                                    <input type="hidden" name="bookingId" th:value="${booking.id}">
-
-                                    <button type="submit" class="btn-sm btn-sm-blue"
-                                            onclick="return confirm('Check out this guest and move the record to checkout records?');">
-                                        Check Out
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </section>
-
-        <section id="cancelled" class="admin-section">
-
-            <h1 class="page-title">Cancelled Bookings</h1>
-            <p class="page-sub">Cancelled reservations are shown here.</p>
-
-            <div class="table-wrap">
-                <div class="table-head">
-                    <h3>Cancelled Booking List</h3>
-                </div>
-
-                <div th:if="${#lists.isEmpty(cancelledBookings)}" class="empty-msg">
-                    No cancelled bookings.
-                </div>
-
-                <table th:if="${!#lists.isEmpty(cancelledBookings)}">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Guest</th>
-                            <th>Room</th>
-                            <th>Guests</th>
-                            <th>Dates</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr th:each="booking : ${cancelledBookings}">
-                            <td th:text="${booking.id}">1</td>
-
-                            <td>
-                                <strong th:text="${booking.fullName}">Guest</strong><br>
-                                <span th:text="${booking.email}">Email</span><br>
-                                <span th:text="${booking.contactNumber}">Contact</span>
-                            </td>
-
-                            <td th:text="${booking.roomType}">Room</td>
-                            <td th:text="${booking.guests}">1</td>
-
-                            <td>
-                                <span th:text="${booking.checkInDate}"></span>
-                                →
-                                <span th:text="${booking.checkOutDate}"></span>
-                            </td>
-
-                            <td>₱<span th:text="${booking.price}">0</span></td>
-                            <td><span class="res-status cancelled">Cancelled</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </section>
-
-        <section id="rooms" class="admin-section">
-
-            <h1 class="page-title">Rooms Management</h1>
-            <p class="page-sub">Room types used by the booking system.</p>
-
-            <div class="rooms-manage-grid">
-
-                <div class="room-manage-card">
-                    <img src="/images/economy-room.jpg">
-                    <div class="room-manage-body">
-                        <h4>Economy Room</h4>
-                        <p>Room range: R101 - R110</p>
-                        <span class="amenity-tag">₱1,000/night</span>
-                        <span class="amenity-tag">Basic Comfort</span>
-                    </div>
-                </div>
-
-                <div class="room-manage-card">
-                    <img src="/images/normal-room.jpg">
-                    <div class="room-manage-body">
-                        <h4>Normal Room</h4>
-                        <p>Room range: R201 - R210</p>
-                        <span class="amenity-tag">₱2,500/night</span>
-                        <span class="amenity-tag">Family Friendly</span>
-                    </div>
-                </div>
-
-                <div class="room-manage-card">
-                    <img src="/images/vip-suite.jpg">
-                    <div class="room-manage-body">
-                        <h4>VIP Suite</h4>
-                        <p>Room range: R301 - R310</p>
-                        <span class="amenity-tag">₱5,000/night</span>
-                        <span class="amenity-tag">Premium Stay</span>
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-</div>
-
-<script>
-function showSection(sectionId, element){
-    document.querySelectorAll('.admin-section').forEach(section => {
-        section.classList.remove('active');
-    });
-
-    document.getElementById(sectionId).classList.add('active');
-
-    document.querySelectorAll('.sidebar-link').forEach(link => {
-        link.classList.remove('active');
-    });
-
-    element.classList.add('active');
-}
-</script>
-
-</body>
-</html>
