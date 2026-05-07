@@ -892,6 +892,27 @@ footer{
 
 <div id="page-reservations" class="page">
     
+    <h2 class="page-title">My Reservations</h2>
+    <p class="page-sub">Your booking records are saved in the Admin.</p>
+
+    <div th:if="${session.userEmail == null}">
+        <p style="color:var(--gray);">Please log in first to view your reservations.</p>
+    </div>
+
+    <div th:if="${session.userEmail != null}">
+        <p style="color:var(--gray);">
+            Your submitted reservations will be visible in the Admin Dashboard / Front Desk after booking.
+        </p>
+    </div>
+    <div th:if="${session.userEmail == null}" style="text-align:center;margin-top:120px;">
+        <i class="fa-regular fa-envelope" style="font-size:3rem;color:rgba(255,255,255,0.1);"></i>
+        <h3 style="margin-top:20px;color:var(--gray);">Not logged in</h3>
+        <p style="color:var(--gray);margin:10px 0 25px;">Please log in or sign up to view your reservations.</p>
+
+        <button class="btn-primary" onclick="openModal('login-modal')">
+            <i class="fa-solid fa-right-to-bracket"></i> Log In
+        </button>
+    </div>
 
     <div th:if="${session.userEmail != null and #lists.isEmpty(myReservations)}" style="text-align:center;margin-top:120px;">
         <i class="fa-regular fa-calendar-xmark" style="font-size:3rem;color:rgba(255,255,255,0.1);"></i>
@@ -932,18 +953,6 @@ footer{
         </div>
     </div>
 
-    <h2 class="page-title">My Reservations</h2>
-    <p class="page-sub">Your booking records are saved in the Railway MySQL booking table.</p>
-
-    <div th:if="${session.userEmail == null}">
-        <p style="color:var(--gray);">Please log in first to view your reservations.</p>
-    </div>
-
-    <div th:if="${session.userEmail != null}">
-        <p style="color:var(--gray);">
-            Your submitted reservations will be visible in the Admin Dashboard / Front Desk after booking.
-        </p>
-    </div>
 </div>
 
 <div class="modal-overlay" id="booking-modal">
