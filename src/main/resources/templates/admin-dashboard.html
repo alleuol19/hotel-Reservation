@@ -1,411 +1,890 @@
-package Hotel;
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 
-import java.sql.*;
-import java.util.*;
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+<title>Hotel De Soleil Admin</title>
 
-import jakarta.servlet.http.HttpSession;
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-@Controller
-public class AuthController {
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    static String url = "jdbc:mysql://mysql.railway.internal:3306/railway";
-    static String dbUser = "root";
-    static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
+<style>
 
-    @GetMapping("/")
-    public String homepage() {
-        return "homepage";
+:root{
+    --bg:#080811;
+    --card:#131320;
+    --card2:#19192b;
+    --line:rgba(255,255,255,0.06);
+
+    --blue:#2f7df6;
+    --blue-light:#63a0ff;
+
+    --green:#3dff9f;
+    --red:#ff4f5f;
+    --gold:#d5aa54;
+
+    --text:#ffffff;
+    --muted:#8f93b2;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Montserrat',sans-serif;
+}
+
+/* TOPBAR */
+
+.topbar{
+    height:70px;
+    background:#05050d;
+    border-bottom:1px solid var(--line);
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 28px;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.brand img{
+    width:42px;
+    height:42px;
+    object-fit:cover;
+    border-radius:50%;
+}
+
+.brand h1{
+    font-size:1.7rem;
+    font-family:'Cormorant Garamond',serif;
+    color:#f3d488;
+}
+
+.admin-badge{
+    padding:5px 12px;
+    border-radius:8px;
+
+    background:rgba(255,130,0,0.12);
+    color:#ff8c2b;
+
+    border:1px solid rgba(255,130,0,0.2);
+
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:1px;
+}
+
+.top-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.top-right span{
+    color:#d6d7ea;
+    font-size:0.9rem;
+}
+
+.logout-btn{
+    padding:10px 18px;
+    border-radius:10px;
+
+    border:1px solid rgba(255,0,0,0.15);
+
+    background:rgba(255,0,0,0.08);
+    color:#ff5959;
+
+    text-decoration:none;
+    font-weight:600;
+}
+
+/* LAYOUT */
+
+.wrapper{
+    display:flex;
+    min-height:calc(100vh - 70px);
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:230px;
+    background:#121220;
+    border-right:1px solid var(--line);
+    padding:25px 0;
+}
+
+.sidebar-title{
+    color:#6d7397;
+    font-size:0.72rem;
+    letter-spacing:2px;
+    font-weight:700;
+
+    margin:0 25px 16px;
+}
+
+.sidebar a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    padding:14px 25px;
+
+    color:#b3b6d6;
+    text-decoration:none;
+
+    transition:0.2s;
+}
+
+.sidebar a:hover{
+    background:rgba(47,125,246,0.08);
+    color:#5da2ff;
+}
+
+.sidebar a.active{
+    background:rgba(47,125,246,0.15);
+    color:#5da2ff;
+    border-left:3px solid var(--blue);
+}
+
+/* MAIN */
+
+.main{
+    flex:1;
+    padding:35px;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+.page-title{
+    font-size:3rem;
+    font-family:'Cormorant Garamond',serif;
+    margin-bottom:8px;
+}
+
+.page-sub{
+    color:var(--muted);
+    margin-bottom:30px;
+}
+
+/* STATS */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+
+    margin-bottom:35px;
+}
+
+.stat-card{
+    background:var(--card);
+    border:1px solid var(--line);
+
+    border-radius:18px;
+    padding:24px;
+}
+
+.stat-card h4{
+    color:#9da4d0;
+    font-size:0.82rem;
+    margin-bottom:10px;
+    letter-spacing:1px;
+}
+
+.stat-card h2{
+    font-size:2.4rem;
+}
+
+.blue{
+    color:#4b8fff;
+}
+
+.green{
+    color:#4effaa;
+}
+
+.red{
+    color:#ff5555;
+}
+
+/* TABLE */
+
+.table-box{
+    background:var(--card);
+    border:1px solid var(--line);
+
+    border-radius:18px;
+    overflow:hidden;
+}
+
+.table-head{
+    padding:20px 24px;
+    border-bottom:1px solid var(--line);
+
+    font-weight:700;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    text-align:left;
+    padding:16px 18px;
+
+    color:#8f93b2;
+    font-size:0.76rem;
+    letter-spacing:1px;
+
+    background:rgba(255,255,255,0.02);
+}
+
+td{
+    padding:16px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+
+    color:#e5e7f5;
+    font-size:0.86rem;
+}
+
+tr:last-child td{
+    border-bottom:none;
+}
+
+/* STATUS */
+
+.status{
+    padding:6px 12px;
+    border-radius:30px;
+
+    font-size:0.73rem;
+    font-weight:700;
+}
+
+.pending{
+    background:rgba(255,180,0,0.12);
+    color:#ffbf47;
+}
+
+.success{
+    background:rgba(0,255,140,0.12);
+    color:#44ffb0;
+}
+
+.cancel{
+    background:rgba(255,0,0,0.12);
+    color:#ff6363;
+}
+
+/* BUTTONS */
+
+.action-group{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+
+    font-size:0.76rem;
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+.btn-confirm{
+    background:rgba(0,255,140,0.12);
+    color:#40ffad;
+}
+
+.btn-cancel{
+    background:rgba(255,0,0,0.12);
+    color:#ff6666;
+}
+
+.btn-checkout{
+    background:rgba(47,125,246,0.12);
+    color:#63a0ff;
+}
+
+.payment-select{
+    background:#1d1d2d;
+    color:white;
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    padding:8px 10px;
+    border-radius:8px;
+}
+
+/* ROOMS */
+
+.rooms-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+}
+
+.room-card{
+    background:var(--card);
+    border:1px solid var(--line);
+
+    border-radius:18px;
+    overflow:hidden;
+}
+
+.room-card img{
+    width:100%;
+    height:190px;
+    object-fit:cover;
+}
+
+.room-content{
+    padding:18px;
+}
+
+.room-content h3{
+    margin-bottom:8px;
+}
+
+.room-content p{
+    color:#969aba;
+    font-size:0.84rem;
+    margin-bottom:14px;
+}
+
+.tag{
+    display:inline-block;
+
+    padding:6px 12px;
+    border-radius:30px;
+
+    background:rgba(47,125,246,0.12);
+    color:#5da2ff;
+
+    font-size:0.74rem;
+    margin:3px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1100px){
+
+    .stats{
+        grid-template-columns:1fr 1fr;
     }
 
-    @PostMapping("/signup")
-    public String signup(
-            @RequestParam String firstName,
-            @RequestParam String lastName,
-            @RequestParam String email,
-            @RequestParam String password,
-            HttpSession session
-    ) {
-        String fullName = firstName + " " + lastName;
-
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
-            String sql = "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
-            stmt.setString(1, fullName);
-            stmt.setString(2, email);
-            stmt.setString(3, password);
-
-            stmt.executeUpdate();
-
-            stmt.close();
-            conn.close();
-
-            session.setAttribute("userName", fullName);
-            session.setAttribute("userEmail", email);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/";
-    }
-
-    @PostMapping("/login")
-    public String login(
-            @RequestParam String email,
-            @RequestParam String password,
-            HttpSession session
-    ) {
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
-            String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
-            stmt.setString(1, email);
-            stmt.setString(2, password);
-
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                session.setAttribute("userName", rs.getString("full_name"));
-                session.setAttribute("userEmail", rs.getString("email"));
-            }
-
-            rs.close();
-            stmt.close();
-            conn.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/";
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/";
-    }
-
-    @PostMapping("/save-booking")
-    public String saveBooking(
-            @RequestParam String fullName,
-            @RequestParam String contactNumber,
-            @RequestParam String email,
-            @RequestParam String checkInDate,
-            @RequestParam String checkOutDate,
-            @RequestParam String roomType,
-            @RequestParam int guests,
-            @RequestParam double price
-    ) {
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
-            String sql = "INSERT INTO booking " +
-                    "(full_name, contact_number, email, check_in_date, check_out_date, room_type, guests, price, status) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
-
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
-            stmt.setString(1, fullName);
-            stmt.setString(2, contactNumber);
-            stmt.setString(3, email);
-            stmt.setString(4, checkInDate);
-            stmt.setString(5, checkOutDate);
-            stmt.setString(6, roomType);
-            stmt.setInt(7, guests);
-            stmt.setDouble(8, price);
-
-            stmt.executeUpdate();
-
-            stmt.close();
-            conn.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/";
-    }
-
-    @GetMapping("/admin-login")
-    public String adminLogin() {
-        return "admin-login";
-    }
-
-    @PostMapping("/admin-access")
-    public String adminAccess(
-            @RequestParam String username,
-            @RequestParam String password,
-            HttpSession session
-    ) {
-        if (username.equals("admin") && password.equals("Hotel123")) {
-            session.setAttribute("admin", true);
-            return "redirect:/admin-dashboard";
-        }
-
-        return "redirect:/admin-login";
-    }
-
-    @GetMapping("/admin-logout")
-    public String adminLogout(HttpSession session) {
-        session.removeAttribute("admin");
-        return "redirect:/admin-login";
-    }
-
-    @GetMapping("/admin-dashboard")
-    public String adminDashboard(HttpSession session, Model model) {
-
-        if (session.getAttribute("admin") == null) {
-            return "redirect:/admin-login";
-        }
-
-        List<Map<String, Object>> pendingBookings = new ArrayList<>();
-        List<Map<String, Object>> successfulBookings = new ArrayList<>();
-        List<Map<String, Object>> cancelledBookings = new ArrayList<>();
-        List<Map<String, Object>> users = new ArrayList<>();
-
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
-            String bookingSql = "SELECT * FROM booking ORDER BY id DESC";
-            PreparedStatement bookingStmt = conn.prepareStatement(bookingSql);
-            ResultSet rs = bookingStmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> booking = new HashMap<>();
-
-                booking.put("id", rs.getInt("id"));
-                booking.put("fullName", rs.getString("full_name"));
-                booking.put("contactNumber", rs.getString("contact_number"));
-                booking.put("email", rs.getString("email"));
-                booking.put("checkInDate", rs.getString("check_in_date"));
-                booking.put("checkOutDate", rs.getString("check_out_date"));
-                booking.put("roomType", rs.getString("room_type"));
-                booking.put("guests", rs.getInt("guests"));
-                booking.put("price", rs.getDouble("price"));
-                booking.put("status", rs.getString("status"));
-                booking.put("paymentMethod", rs.getString("payment_method"));
-                booking.put("roomNumber", rs.getString("room_number"));
-
-                String status = rs.getString("status");
-
-                if ("PENDING".equals(status)) {
-                    pendingBookings.add(booking);
-                } else if ("SUCCESSFUL".equals(status)) {
-                    successfulBookings.add(booking);
-                } else if ("CANCELED".equals(status)) {
-                    cancelledBookings.add(booking);
-                }
-            }
-
-            rs.close();
-            bookingStmt.close();
-
-            String userSql = "SELECT * FROM users ORDER BY id DESC";
-            PreparedStatement userStmt = conn.prepareStatement(userSql);
-            ResultSet userRs = userStmt.executeQuery();
-
-            while (userRs.next()) {
-                Map<String, Object> user = new HashMap<>();
-
-                user.put("id", userRs.getInt("id"));
-                user.put("fullName", userRs.getString("full_name"));
-                user.put("email", userRs.getString("email"));
-
-                users.add(user);
-            }
-
-            userRs.close();
-            userStmt.close();
-            conn.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        model.addAttribute("pendingBookings", pendingBookings);
-        model.addAttribute("successfulBookings", successfulBookings);
-        model.addAttribute("cancelledBookings", cancelledBookings);
-        model.addAttribute("users", users);
-
-        return "admin-dashboard";
-    }
-
-    @PostMapping("/confirm-booking")
-    public String confirmBooking(
-            @RequestParam int bookingId,
-            @RequestParam String paymentMethod
-    ) {
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
-            String roomType = "";
-
-            String getRoomSql = "SELECT room_type FROM booking WHERE id = ?";
-            PreparedStatement getStmt = conn.prepareStatement(getRoomSql);
-            getStmt.setInt(1, bookingId);
-
-            ResultSet rs = getStmt.executeQuery();
-
-            if (rs.next()) {
-                roomType = rs.getString("room_type");
-            }
-
-            rs.close();
-            getStmt.close();
-
-            List<String> availableRooms = getAvailableRooms(conn, roomType);
-
-            if (availableRooms.isEmpty()) {
-                conn.close();
-                return "redirect:/admin-dashboard";
-            }
-
-            String assignedRoom = availableRooms.get(0);
-
-            String updateSql = "UPDATE booking SET status='SUCCESSFUL', payment_method=?, room_number=? WHERE id=?";
-            PreparedStatement stmt = conn.prepareStatement(updateSql);
-
-            stmt.setString(1, paymentMethod);
-            stmt.setString(2, assignedRoom);
-            stmt.setInt(3, bookingId);
-
-            stmt.executeUpdate();
-
-            stmt.close();
-            conn.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/admin-dashboard";
-    }
-
-    @PostMapping("/cancel-booking")
-    public String cancelBooking(@RequestParam int bookingId) {
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
-            String sql = "UPDATE booking SET status='CANCELED' WHERE id=?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
-            stmt.setInt(1, bookingId);
-            stmt.executeUpdate();
-
-            stmt.close();
-            conn.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/admin-dashboard";
-    }
-
-    @PostMapping("/checkout-booking")
-    public String checkoutBooking(@RequestParam int bookingId) {
-        try {
-            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
-            String getSql = "SELECT * FROM booking WHERE id=?";
-            PreparedStatement getStmt = conn.prepareStatement(getSql);
-            getStmt.setInt(1, bookingId);
-
-            ResultSet rs = getStmt.executeQuery();
-
-            if (rs.next()) {
-                String insertSql = "INSERT INTO checkout_records " +
-                        "(booking_id, full_name, contact_number, email, check_in_date, check_out_date, room_type, guests, price, payment_method, room_number) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-                PreparedStatement insertStmt = conn.prepareStatement(insertSql);
-
-                insertStmt.setInt(1, rs.getInt("id"));
-                insertStmt.setString(2, rs.getString("full_name"));
-                insertStmt.setString(3, rs.getString("contact_number"));
-                insertStmt.setString(4, rs.getString("email"));
-                insertStmt.setString(5, rs.getString("check_in_date"));
-                insertStmt.setString(6, rs.getString("check_out_date"));
-                insertStmt.setString(7, rs.getString("room_type"));
-                insertStmt.setInt(8, rs.getInt("guests"));
-                insertStmt.setDouble(9, rs.getDouble("price"));
-                insertStmt.setString(10, rs.getString("payment_method"));
-                insertStmt.setString(11, rs.getString("room_number"));
-
-                insertStmt.executeUpdate();
-                insertStmt.close();
-            }
-
-            rs.close();
-            getStmt.close();
-
-            String deleteSql = "DELETE FROM booking WHERE id=?";
-            PreparedStatement deleteStmt = conn.prepareStatement(deleteSql);
-
-            deleteStmt.setInt(1, bookingId);
-            deleteStmt.executeUpdate();
-
-            deleteStmt.close();
-            conn.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/admin-dashboard";
-    }
-
-    private List<String> getAvailableRooms(Connection conn, String roomType) {
-
-        List<String> rooms = new ArrayList<>();
-
-        int start = 101;
-        int end = 110;
-
-        if ("Economy Room".equals(roomType)) {
-            start = 101;
-            end = 110;
-        } else if ("Normal Room".equals(roomType)) {
-            start = 201;
-            end = 210;
-        } else if ("VIP Suite".equals(roomType)) {
-            start = 301;
-            end = 310;
-        }
-
-        try {
-            for (int i = start; i <= end; i++) {
-                String roomNumber = "R" + i;
-
-                String sql = "SELECT COUNT(*) FROM booking WHERE room_number = ? AND status = 'SUCCESSFUL'";
-                PreparedStatement stmt = conn.prepareStatement(sql);
-
-                stmt.setString(1, roomNumber);
-
-                ResultSet rs = stmt.executeQuery();
-
-                if (rs.next() && rs.getInt(1) == 0) {
-                    rooms.add(roomNumber);
-                }
-
-                rs.close();
-                stmt.close();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return rooms;
+    .rooms-grid{
+        grid-template-columns:1fr;
     }
 }
+
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+
+<div class="topbar">
+
+    <div class="brand">
+
+        <img src="/images/logo.png">
+
+        <h1>Hotel De Soleil</h1>
+
+        <div class="admin-badge">
+            ADMIN
+        </div>
+
+    </div>
+
+    <div class="top-right">
+
+        <span>
+            <i class="fa-solid fa-user-shield"></i>
+            Administrator
+        </span>
+
+        <a th:href="@{/admin-logout}" class="logout-btn">
+            Logout
+        </a>
+
+    </div>
+
+</div>
+
+<div class="wrapper">
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+    <div class="sidebar-title">
+        MAIN
+    </div>
+
+    <a class="active" onclick="showPage('dashboard', this)">
+        <i class="fa-solid fa-chart-line"></i>
+        Dashboard
+    </a>
+
+    <a onclick="showPage('reservations', this)">
+        <i class="fa-solid fa-calendar-check"></i>
+        Reservations
+    </a>
+
+    <a onclick="showPage('rooms', this)">
+        <i class="fa-solid fa-bed"></i>
+        Rooms
+    </a>
+
+    <a onclick="showPage('guests', this)">
+        <i class="fa-solid fa-users"></i>
+        Guests
+    </a>
+
+    <a onclick="showPage('users', this)">
+        <i class="fa-solid fa-user-plus"></i>
+        Registered Users
+    </a>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<!-- DASHBOARD -->
+
+<div class="page active" id="dashboard">
+
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Overview of Hotel De Soleil operations</p>
+
+    <div class="stats">
+
+        <div class="stat-card">
+            <h4>TOTAL BOOKINGS</h4>
+
+            <h2 class="blue"
+            th:text="${#lists.size(pendingBookings)+#lists.size(successfulBookings)+#lists.size(cancelledBookings)}">
+            0
+            </h2>
+
+            <p>All time</p>
+        </div>
+
+        <div class="stat-card">
+            <h4>CONFIRMED</h4>
+
+            <h2 class="green"
+            th:text="${#lists.size(successfulBookings)}">
+            0
+            </h2>
+
+            <p>Active</p>
+        </div>
+
+        <div class="stat-card">
+            <h4>CANCELLED</h4>
+
+            <h2 class="red"
+            th:text="${#lists.size(cancelledBookings)}">
+            0
+            </h2>
+
+            <p>Total</p>
+        </div>
+
+        <div class="stat-card">
+            <h4>EST. REVENUE</h4>
+
+            <h2 class="blue">
+            ₱0.0k
+            </h2>
+
+            <p>Confirmed only</p>
+        </div>
+
+    </div>
+
+    <div class="table-box">
+
+        <div class="table-head">
+            Recent Reservations
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>GUEST</th>
+                    <th>ROOM</th>
+                    <th>CHECK-IN</th>
+                    <th>CHECK-OUT</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr th:each="booking : ${pendingBookings}">
+                    <td th:text="${booking.fullName}"></td>
+                    <td th:text="${booking.roomType}"></td>
+                    <td th:text="${booking.checkInDate}"></td>
+                    <td th:text="${booking.checkOutDate}"></td>
+
+                    <td>
+                        <span class="status pending">
+                            Pending
+                        </span>
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- RESERVATIONS -->
+
+<div class="page" id="reservations">
+
+    <h1 class="page-title">Reservations</h1>
+    <p class="page-sub">Manage all guest bookings</p>
+
+    <div class="table-box">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>GUEST</th>
+                    <th>ROOM</th>
+                    <th>CHECK-IN</th>
+                    <th>CHECK-OUT</th>
+                    <th>TOTAL</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr th:each="booking : ${pendingBookings}">
+
+                    <td th:text="${booking.id}"></td>
+
+                    <td th:text="${booking.fullName}"></td>
+
+                    <td th:text="${booking.roomType}"></td>
+
+                    <td th:text="${booking.checkInDate}"></td>
+
+                    <td th:text="${booking.checkOutDate}"></td>
+
+                    <td>
+                        ₱<span th:text="${booking.price}"></span>
+                    </td>
+
+                    <td>
+                        <span class="status pending">
+                            Pending
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="action-group">
+
+                            <form th:action="@{/confirm-booking}" method="post">
+
+                                <input type="hidden"
+                                name="bookingId"
+                                th:value="${booking.id}">
+
+                                <select class="payment-select"
+                                name="paymentMethod">
+
+                                    <option>Cash</option>
+                                    <option>Card</option>
+                                    <option>GCash</option>
+
+                                </select>
+
+                                <button class="btn btn-confirm">
+                                    Confirm
+                                </button>
+
+                            </form>
+
+                            <form th:action="@{/cancel-booking}" method="post">
+
+                                <input type="hidden"
+                                name="bookingId"
+                                th:value="${booking.id}">
+
+                                <button class="btn btn-cancel">
+                                    Cancel
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                <tr th:each="booking : ${successfulBookings}">
+
+                    <td th:text="${booking.id}"></td>
+
+                    <td th:text="${booking.fullName}"></td>
+
+                    <td th:text="${booking.roomType}"></td>
+
+                    <td th:text="${booking.checkInDate}"></td>
+
+                    <td th:text="${booking.checkOutDate}"></td>
+
+                    <td>
+                        ₱<span th:text="${booking.price}"></span>
+                    </td>
+
+                    <td>
+                        <span class="status success">
+                            Confirmed
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <form th:action="@{/checkout-booking}" method="post">
+
+                            <input type="hidden"
+                            name="bookingId"
+                            th:value="${booking.id}">
+
+                            <button class="btn btn-checkout">
+                                Check Out
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- ROOMS -->
+
+<div class="page" id="rooms">
+
+    <h1 class="page-title">Room Management</h1>
+    <p class="page-sub">Room availability and details</p>
+
+    <div class="rooms-grid">
+
+        <div class="room-card">
+
+            <img src="/images/economy-room.jpg">
+
+            <div class="room-content">
+
+                <h3>Economy Room</h3>
+
+                <p>₱2,500/night · Up to 2 guests</p>
+
+                <span class="tag">Free Wi-Fi</span>
+                <span class="tag">Air Conditioning</span>
+                <span class="tag">TV</span>
+
+            </div>
+
+        </div>
+
+        <div class="room-card">
+
+            <img src="/images/normal-room.jpg">
+
+            <div class="room-content">
+
+                <h3>Normal Room</h3>
+
+                <p>₱4,800/night · Up to 4 guests</p>
+
+                <span class="tag">Smart TV</span>
+                <span class="tag">Mini Bar</span>
+
+            </div>
+
+        </div>
+
+        <div class="room-card">
+
+            <img src="/images/vip-suite.jpg">
+
+            <div class="room-content">
+
+                <h3>VIP Suite</h3>
+
+                <p>₱12,000/night · Up to 4 guests</p>
+
+                <span class="tag">Jacuzzi</span>
+                <span class="tag">Panoramic View</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- GUESTS -->
+
+<div class="page" id="guests">
+
+    <h1 class="page-title">Guest Management</h1>
+    <p class="page-sub">All registered guests</p>
+
+    <div class="table-box">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>NAME</th>
+                    <th>EMAIL</th>
+                    <th>CONTACT</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr th:each="booking : ${successfulBookings}">
+
+                    <td th:text="${booking.id}"></td>
+
+                    <td th:text="${booking.fullName}"></td>
+
+                    <td th:text="${booking.email}"></td>
+
+                    <td th:text="${booking.contactNumber}"></td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- USERS -->
+
+<div class="page" id="users">
+
+    <h1 class="page-title">Registered Users</h1>
+    <p class="page-sub">Users who signed up on the website</p>
+
+    <div class="table-box">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>NAME</th>
+                    <th>EMAIL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr th:each="user : ${users}">
+
+                    <td th:text="${user.id}"></td>
+
+                    <td th:text="${user.fullName}"></td>
+
+                    <td th:text="${user.email}"></td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function showPage(id, element){
+
+    document.querySelectorAll('.page').forEach(page=>{
+        page.classList.remove('active');
+    });
+
+    document.getElementById(id).classList.add('active');
+
+    document.querySelectorAll('.sidebar a').forEach(link=>{
+        link.classList.remove('active');
+    });
+
+    element.classList.add('active');
+}
+
+</script>
+
+</body>
+</html>

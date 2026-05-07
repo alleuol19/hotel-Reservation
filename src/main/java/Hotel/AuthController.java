@@ -2,16 +2,13 @@ package Hotel;
 
 
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -220,6 +217,7 @@ public class AuthController {
 	    List<Map<String, Object>> pendingBookings = new ArrayList<>();
 	    List<Map<String, Object>> successfulBookings = new ArrayList<>();
 	    List<Map<String, Object>> cancelledBookings = new ArrayList<>();
+	    List<Map<String, Object>> users = new ArrayList<>();
 
 	    try {
 
@@ -263,6 +261,26 @@ public class AuthController {
 
 	        rs.close();
 	        stmt.close();
+	        String userSql = "SELECT * FROM users ORDER BY id DESC";
+
+	        PreparedStatement userStmt =
+	                conn.prepareStatement(userSql);
+
+	        ResultSet userRs = userStmt.executeQuery();
+
+	        while(userRs.next()) {
+
+	            Map<String, Object> user = new HashMap<>();
+
+	            user.put("id", userRs.getInt("id"));
+	            user.put("fullName", userRs.getString("full_name"));
+	            user.put("email", userRs.getString("email"));
+
+	            users.add(user);
+	        }
+
+	        userRs.close();
+	        userStmt.close();
 	        conn.close();
 
 	    } catch(Exception e) {
@@ -274,7 +292,7 @@ public class AuthController {
 	    model.addAttribute("pendingBookings", pendingBookings);
 	    model.addAttribute("successfulBookings", successfulBookings);
 	    model.addAttribute("cancelledBookings", cancelledBookings);
-
+	    model.addAttribute("users", users);
 	    return "admin-dashboard";
 	}
 	@GetMapping("/admin-login")
