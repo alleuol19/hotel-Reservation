@@ -1002,14 +1002,53 @@ footer{
             </div>
 
             <div class="form-group">
-                <label><i class="fa-solid fa-lock"></i> Password</label>
-                <input type="password" name="password" placeholder="At least 6 characters" required>
-            </div>
+    <label><i class="fa-solid fa-lock"></i> Password</label>
+
+    <div style="position:relative;">
+        <input type="password"
+               id="signupPassword"
+               name="password"
+               placeholder="At least 6 characters"
+               required
+               style="padding-right:45px;">
+
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('signupPassword', this)"
+           style="
+                position:absolute;
+                right:15px;
+                top:50%;
+                transform:translateY(-50%);
+                cursor:pointer;
+                color:var(--gray);
+           ">
+        </i>
+    </div>
+</div>
 
             <div class="form-group">
-                <label><i class="fa-solid fa-lock"></i> Confirm Password</label>
-                <input type="password" placeholder="Repeat password" required>
-            </div>
+    <label><i class="fa-solid fa-lock"></i> Confirm Password</label>
+
+    <div style="position:relative;">
+        <input type="password"
+               id="signupConfirmPassword"
+               placeholder="Repeat password"
+               required
+               style="padding-right:45px;">
+
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('signupConfirmPassword', this)"
+           style="
+                position:absolute;
+                right:15px;
+                top:50%;
+                transform:translateY(-50%);
+                cursor:pointer;
+                color:var(--gray);
+           ">
+        </i>
+    </div>
+</div>
 
             <button class="btn-book" type="submit">
                 <i class="fa-solid fa-user-check"></i> Create Account
@@ -1045,10 +1084,32 @@ footer{
                 <input type="email" name="email" placeholder="juan@email.com" required>
             </div>
 
-            <div class="form-group">
-                <label><i class="fa-solid fa-lock"></i> Password</label>
-                <input type="password" name="password" placeholder="Your password" required>
-            </div>
+           <div class="form-group">
+    <label><i class="fa-solid fa-lock"></i> Password</label>
+
+    <div style="position:relative;">
+
+        <input type="password"
+               id="loginPassword"
+               name="password"
+               placeholder="Your password"
+               required
+               style="padding-right:45px;">
+
+        <i class="fa-solid fa-eye"
+           onclick="togglePassword('loginPassword', this)"
+           style="
+                position:absolute;
+                right:15px;
+                top:50%;
+                transform:translateY(-50%);
+                cursor:pointer;
+                color:var(--gray);
+           ">
+        </i>
+
+    </div>
+</div>
 
             <button class="btn-book" type="submit">
                 <i class="fa-solid fa-right-to-bracket"></i> Log In
@@ -1232,6 +1293,20 @@ document.querySelectorAll('.modal-overlay').forEach(modal => {
 });
 
 renderRoomsPage();
+function togglePassword(inputId, icon){
+
+    const input = document.getElementById(inputId);
+
+    if(input.type === "password"){
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    }else{
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
 </script>
 
 </body>
