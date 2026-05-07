@@ -34,6 +34,11 @@
             font-weight:bold;
             letter-spacing:1px;
         }
+        .navbar-logo{
+    height:65px;
+    width:auto;
+    object-fit:contain;
+}
 
         .nav-links a{
             color:white;
@@ -219,8 +224,10 @@
 <div class="navbar">
 
     <div class="logo">
-        HOTEL DE SOLEIL
-    </div>
+
+    <img src="/images/logo.png" class="navbar-logo">
+
+</div>
 
     <div class="nav-links">
         <a th:href="@{/#home}">Home</a>
