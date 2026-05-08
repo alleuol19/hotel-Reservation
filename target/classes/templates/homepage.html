@@ -285,6 +285,33 @@ nav{
     letter-spacing:0.08em;
     margin-bottom:1rem;
 }
+.rating-stars{
+    display:flex;
+    flex-direction:row-reverse;
+    justify-content:center;
+    margin-bottom:20px;
+}
+
+.rating-stars input{
+    display:none;
+}
+
+.rating-stars label{
+    font-size:38px;
+    color:#444;
+    cursor:pointer;
+    transition:0.3s;
+    padding:0 4px;
+}
+
+.rating-stars input:checked ~ label{
+    color:#ffd700;
+}
+
+.rating-stars label:hover,
+.rating-stars label:hover ~ label{
+    color:#ffd700;
+}
 
 .divider{
     width:60px;
@@ -865,7 +892,41 @@ footer{
             </div>
         </div>
     </section>
+<form th:if="${session.user != null}"
+      action="/submit-feedback"
+      method="post"
+      class="feedback-form">
 
+    <div class="rating-stars">
+
+        <input type="radio" name="rating" value="5" id="star5" required>
+        <label for="star5">★</label>
+
+        <input type="radio" name="rating" value="4" id="star4">
+        <label for="star4">★</label>
+
+        <input type="radio" name="rating" value="3" id="star3">
+        <label for="star3">★</label>
+
+        <input type="radio" name="rating" value="2" id="star2">
+        <label for="star2">★</label>
+
+        <input type="radio" name="rating" value="1" id="star1">
+        <label for="star1">★</label>
+
+    </div>
+
+    <textarea
+        name="message"
+        placeholder="Share your experience with Hotel De Soleil..."
+        required>
+    </textarea>
+
+    <button type="submit">
+        Submit Feedback
+    </button>
+
+</form>
     <footer>
         <div>© 2026 Hotel De Soleil. All rights reserved.</div>
         <div>Quezon City, Philippines</div>
@@ -1020,15 +1081,14 @@ footer{
             </div>
 
             <div th:if="${session.userEmail == null}">
+<button
+    type="button"
+    class="btn-book"
+    onclick="closeModal('booking-modal'); openModal('login-modal');">
 
-    <button
-        type="button"
-        class="btn-book"
-        onclick="alert('Please log in first before booking.')">
+    Log In First To Book
 
-        Log In First To Book
-
-    </button>
+</button>
 
 </div>
 
