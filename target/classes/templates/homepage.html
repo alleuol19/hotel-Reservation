@@ -699,15 +699,18 @@ nav{
     border-radius:10px;
     cursor:pointer;
 }
-
 footer{
-    background:var(--black);
-    padding:2rem 6rem;
-    border-top:1px solid rgba(255,255,255,0.06);
     display:flex;
-    justify-content:space-between;
-    color:var(--gray);
-    font-size:0.79rem;
+    justify-content:center;
+    align-items:center;
+    gap:40px;
+
+    padding:25px 6rem;
+    background:#05050a;
+    border-top:1px solid rgba(255,255,255,0.08);
+
+    color:#8b8ba7;
+    font-size:14px;
 }
 
 .auth-modal{
@@ -930,56 +933,53 @@ footer{
             </div>
         </div>
     </section>
-    <section id="feedback-section">
+    
+    <section id="feedback-section" th:if="${session.userEmail != null}">
 
-    <div class="section-header">
-        <h2>Feedback</h2>
-        <p>We value your experience at Hotel De Soleil.</p>
-    </div>
-<div th:if="${session.userEmail == null}" class="feedback-login-message">
-        <p>Please log in first to leave feedback.</p>
+    <h2 class="section-title">Guest Feedback</h2>
 
-        <button onclick="openModal('login-modal')">
-            Log In
+    <p class="section-sub">
+        Share your experience with Hotel De Soleil
+    </p>
+
+    <div class="divider"></div>
+
+    <form class="feedback-form"
+          th:action="@{/submit-feedback}"
+          method="post">
+
+        <div class="rating-stars">
+
+            <input type="radio" id="star5" name="rating" value="5" required>
+            <label for="star5">★</label>
+
+            <input type="radio" id="star4" name="rating" value="4">
+            <label for="star4">★</label>
+
+            <input type="radio" id="star3" name="rating" value="3">
+            <label for="star3">★</label>
+
+            <input type="radio" id="star2" name="rating" value="2">
+            <label for="star2">★</label>
+
+            <input type="radio" id="star1" name="rating" value="1">
+            <label for="star1">★</label>
+
+        </div>
+
+        <textarea
+            name="message"
+            placeholder="Tell us about your stay..."
+            required></textarea>
+
+        <button type="submit">
+            Submit Feedback
         </button>
 
-    </div>
-<form th:if="${session.userEmail != null}"
-      action="/submit-feedback"
-      method="post"
-      class="feedback-form">
+    </form>
 
-    <div class="rating-stars">
-
-        <input type="radio" name="rating" value="5" id="star5" required>
-        <label for="star5">★</label>
-
-        <input type="radio" name="rating" value="4" id="star4">
-        <label for="star4">★</label>
-
-        <input type="radio" name="rating" value="3" id="star3">
-        <label for="star3">★</label>
-
-        <input type="radio" name="rating" value="2" id="star2">
-        <label for="star2">★</label>
-
-        <input type="radio" name="rating" value="1" id="star1">
-        <label for="star1">★</label>
-
-    </div>
-
-    <textarea
-        name="message"
-        placeholder="Share your experience with Hotel De Soleil..."
-        required>
-    </textarea>
-
-    <button type="submit">
-        Submit Feedback
-    </button>
-
-</form>
 </section>
+    
     <footer>
         <div>© 2026 Hotel De Soleil. All rights reserved.</div>
         <div>Quezon City, Philippines</div>
@@ -1068,6 +1068,8 @@ footer{
     </div>
 
 </div>
+
+
 
 <div class="modal-overlay" id="booking-modal">
     <div class="modal">
