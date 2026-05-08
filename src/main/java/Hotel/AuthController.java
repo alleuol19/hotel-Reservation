@@ -534,36 +534,55 @@ public class AuthController {
 
 	    return "redirect:/admin-dashboard";
 	}
-	@PostMapping("/submit-feedback")
-	public String submitFeedback(
-	        @RequestParam String message,
-	        HttpSession session) {
-
-	    String user = (String) session.getAttribute("user");
-
-	    try {
-	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
-	        String sql = "INSERT INTO feedback(user_name, message) VALUES (?, ?)";
-
-	        PreparedStatement stmt = conn.prepareStatement(sql);
-
-	        stmt.setString(1, user);
-	        stmt.setString(2, message);
-
-	        stmt.executeUpdate();
-
-	        conn.close();
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-
-	    return "redirect:/";
-	}
+	
 	@GetMapping("/admin-logout")
 	public String adminLogout(HttpSession session) {
 	    session.removeAttribute("admin");
 	    return "redirect:/admin-login";
+	}
+
+	@PostMapping("/submit-feedback")
+	public String submitFeedback(
+	        @RequestParam String message,
+	        @RequestParam int rating,
+	        HttpSession session
+	) {
+
+	    String userName =
+	            (String) session.getAttribute("userName");
+
+	    if(userName == null){
+	        return "redirect:/";
+	    }
+
+	    try{
+
+	        Connection conn =
+	                DriverManager.getConnection(
+	                        url,
+	                        dbUser,
+	                        dbPass
+	                );
+
+	        String sql =
+	        "INSERT INTO feedback(user_name, rating, message) VALUES (?, ?, ?)";
+
+	        PreparedStatement stmt =
+	                conn.prepareStatement(sql);
+
+	        stmt.setString(1, userName);
+	        stmt.setInt(2, rating);
+	        stmt.setString(3, message);
+
+	        stmt.executeUpdate();
+
+	        stmt.close();
+	        conn.close();
+
+	    }catch(Exception e){
+	        e.printStackTrace();
+	    }
+
+	    return "redirect:/";
 	}
 }

@@ -312,6 +312,44 @@ nav{
 .rating-stars label:hover ~ label{
     color:#ffd700;
 }
+#feedback-section{
+    padding:80px 6rem;
+    background:var(--dark);
+    text-align:center;
+}
+
+.feedback-form{
+    max-width:700px;
+    margin:auto;
+}
+
+.feedback-form textarea{
+    width:100%;
+    height:160px;
+    padding:16px;
+    border:none;
+    border-radius:12px;
+    background:var(--dark3);
+    color:white;
+    resize:none;
+    margin-bottom:18px;
+}
+
+.feedback-form button,
+.feedback-login-message button{
+    padding:13px 28px;
+    border:none;
+    border-radius:10px;
+    background:var(--blue);
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.feedback-login-message p{
+    color:var(--gray);
+    margin-bottom:15px;
+}
 
 .divider{
     width:60px;
@@ -898,9 +936,7 @@ footer{
         <h2>Feedback</h2>
         <p>We value your experience at Hotel De Soleil.</p>
     </div>
-
-    <div th:if="${session.user == null}" class="feedback-login-message">
-
+<div th:if="${session.userEmail == null}" class="feedback-login-message">
         <p>Please log in first to leave feedback.</p>
 
         <button onclick="openModal('login-modal')">
@@ -908,7 +944,7 @@ footer{
         </button>
 
     </div>
-<form th:if="${session.user != null}"
+<form th:if="${session.userEmail != null}"
       action="/submit-feedback"
       method="post"
       class="feedback-form">
