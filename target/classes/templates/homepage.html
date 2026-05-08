@@ -892,6 +892,22 @@ footer{
             </div>
         </div>
     </section>
+    <section id="feedback-section">
+
+    <div class="section-header">
+        <h2>Feedback</h2>
+        <p>We value your experience at Hotel De Soleil.</p>
+    </div>
+
+    <div th:if="${session.user == null}" class="feedback-login-message">
+
+        <p>Please log in first to leave feedback.</p>
+
+        <button onclick="openModal('login-modal')">
+            Log In
+        </button>
+
+    </div>
 <form th:if="${session.user != null}"
       action="/submit-feedback"
       method="post"
@@ -927,6 +943,7 @@ footer{
     </button>
 
 </form>
+</section>
     <footer>
         <div>© 2026 Hotel De Soleil. All rights reserved.</div>
         <div>Quezon City, Philippines</div>
