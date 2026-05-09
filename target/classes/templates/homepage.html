@@ -1129,7 +1129,7 @@ footer{
 
             <div class="form-group">
                 <label>Room Type</label>
-                <select id="book-room" name="roomType" onchange="updateBookingSummary()" required>
+                <select id="book-room" name="roomType" onchange="resetGuestCounter(); updateBookingSummary()" required>
                     <option value="">Select a room</option>
                     <option value="Economy Room">Economy Room — ₱3,500/night</option>
                     <option value="Normal Room">Normal Room — ₱5,500/night</option>
@@ -1588,6 +1588,11 @@ function changeGuest(type, amount){
         }
     }
 
+    updateGuestInput();
+}
+function resetGuestCounter(){
+    adultCount = 1;
+    childCount = 0;
     updateGuestInput();
 }
 </script>
