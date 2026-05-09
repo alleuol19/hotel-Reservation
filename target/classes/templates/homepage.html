@@ -1374,8 +1374,19 @@ const ROOMS = [
         type:'economy',
         img:'/images/economy-room.jpg',
         desc:'Affordable comfort with essential amenities and relaxing atmosphere.',
-        amenities:['Free Wi-Fi','Air Conditioning','TV','Hot Shower'],
-        capacity:2
+        amenities:[
+            'Free Wi-Fi',
+            'Air Conditioning',
+            'TV',
+            'Hot Shower',
+            'Fresh Towels',
+            'Complimentary Water'
+        ],
+        capacity:2,
+        size:'22 sqm',
+        bed:'1 Double Bed',
+        breakfast:'Breakfast not included',
+        time:'Check-in 2:00 PM · Check-out 12:00 PM'
     },
     {
         id:'normal',
@@ -1384,8 +1395,21 @@ const ROOMS = [
         type:'normal',
         img:'/images/normal-room.jpg',
         desc:'Comfortable and spacious room perfect for families and travelers.',
-        amenities:['Free Wi-Fi','Air Conditioning','Smart TV','Mini Bar'],
-        capacity:4
+        amenities:[
+            'Free Wi-Fi',
+            'Air Conditioning',
+            'Smart TV',
+            'Mini Bar',
+            'Coffee Station',
+            'Daily Housekeeping',
+            'Room Service',
+            'Fresh Towels'
+        ],
+        capacity:4,
+        size:'32 sqm',
+        bed:'2 Double Beds',
+        breakfast:'Breakfast included',
+        time:'Check-in 2:00 PM · Check-out 12:00 PM'
     },
     {
         id:'vip',
@@ -1394,8 +1418,23 @@ const ROOMS = [
         type:'vip',
         img:'/images/vip-suite.png',
         desc:'Luxury accommodation with premium hotel services.',
-        amenities:['Free Wi-Fi','Premium TV','Private Bar','Jacuzzi'],
-        capacity:8
+        amenities:[
+            'Free Wi-Fi',
+            'Premium Smart TV',
+            'Private Bar',
+            'Jacuzzi',
+            'Luxury Bathroom',
+            'Living Area',
+            'Coffee Machine',
+            '24/7 Butler Service',
+            'Private Balcony',
+            'Premium Toiletries'
+        ],
+        capacity:8,
+        size:'55 sqm',
+        bed:'1 King Bed + Sofa Bed',
+        breakfast:'Premium breakfast included',
+        time:'Check-in 2:00 PM · Check-out 12:00 PM'
     }
 ];
 
@@ -1437,6 +1476,10 @@ function renderRoomsPage(filter='all'){
                     ${room.amenities.map(a => `<span class="amenity-tag">${a}</span>`).join('')}
                 </div>
                 <p style="margin-top:1rem;">👥 Up to ${room.capacity} guests</p>
+                <p>📐 ${room.size}</p>
+                <p>🛏️ ${room.bed}</p>
+                <p>🍽️ ${room.breakfast}</p>
+                <p>🕒 ${room.time}</p>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;">
                     <div class="room-price">₱${room.price.toLocaleString()} / night</div>
                     <button class="btn-primary" onclick="openBookingModal('${room.name}')">Book Now</button>
