@@ -937,7 +937,25 @@ footer{
                     <div class="room-price">₱5,500 <span>/ night</span></div>
                 </div>
             </div>
+            <div class="room-card" onclick="showPage('rooms');setActiveNav('nav-rooms')">
 
+    <img class="room-img" src="/images/family-room.jpg">
+
+    <div class="room-info">
+
+        <h3>Family Room</h3>
+
+        <p>
+            Spacious accommodation perfect for families and group stays.
+        </p>
+
+        <div class="room-price">
+            ₱7,500 <span>/ night</span>
+        </div>
+
+    </div>
+
+</div>
             <div class="room-card" onclick="showPage('rooms');setActiveNav('nav-rooms')">
                 <img class="room-img" src="/images/vip-suite.png">
                 <div class="room-info">
@@ -1036,6 +1054,7 @@ footer{
             <button class="filter-btn active" onclick="filterRooms('all', this)">All Rooms</button>
             <button class="filter-btn" onclick="filterRooms('economy', this)">Economy</button>
             <button class="filter-btn" onclick="filterRooms('normal', this)">Normal</button>
+            <button class="filter-btn" onclick="filterRooms('family', this)">Family</button>
             <button class="filter-btn" onclick="filterRooms('vip', this)">VIP Suite</button>
         </div>
     </div>
@@ -1130,7 +1149,12 @@ footer{
 
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" th:value="${session.userEmail}" required>
+                <input type="email"
+       name="email"
+       th:value="${session.userEmail}"
+       required
+       oninvalid="this.setCustomValidity('Please enter a valid email address')"
+       oninput="this.setCustomValidity('')">
             </div>
 
             <div class="form-group">
@@ -1162,8 +1186,15 @@ footer{
                     <option value="">Select a room</option>
                     <option value="Economy Room">Economy Room — ₱3,500/night</option>
                     <option value="Normal Room">Normal Room — ₱5,500/night</option>
+                    <option value="Family Room">Family Room — ₱7,500/night</option>
                     <option value="VIP Suite">VIP Suite — ₱10,000/night</option>
                 </select>
+                <p id="roomLimitText"
+   				style="
+        		color:var(--gray);
+        		font-size:0.8rem;
+        		margin-top:8px;">
+				</p>
             </div>
 
             <div class="form-row">
@@ -1203,10 +1234,33 @@ footer{
 </div>
 
 <input type="hidden" id="guestsInput" name="guests" value="1">
-
+			<p id="guestWarning"
+   style="
+        color:#ff8080;
+        font-size:0.82rem;
+        margin-top:10px;
+        display:none;
+   ">
+</p>
             <input type="hidden" id="priceInput" name="price">
 
             <div id="booking-summary" style="background:var(--dark3);border-radius:9px;padding:12px 14px;margin-bottom:1rem;display:none;">
+            <div style="margin-top:15px;">
+
+   <input type="text"
+       id="promoCode"
+       oninput="updateBookingSummary()"
+           placeholder="Promo Code"
+           style="
+                width:100%;
+                padding:12px;
+                border-radius:9px;
+                border:none;
+                background:var(--dark3);
+                color:white;
+           ">
+
+</div>
                 <p style="font-size:0.82rem;color:var(--gray);">Estimated Total</p>
                 <p id="booking-total" style="font-size:1.2rem;font-weight:700;color:var(--blue-light);"></p>
             </div>
@@ -1441,6 +1495,31 @@ const ROOMS = [
         time:'Check-in 2:00 PM · Check-out 12:00 PM'
     },
     {
+        id:'family',
+        name:'Family Room',
+        price:7500,
+        type:'family',
+        img:'/images/family-room.jpg',
+        desc:'Spacious room designed for families and group stays.',
+
+        amenities:[
+            'Free Wi-Fi',
+            'Air Conditioning',
+            'Smart TV',
+            'Mini Refrigerator',
+            'Dining Area',
+            'Daily Housekeeping',
+            'Fresh Towels',
+            'Complimentary Water'
+        ],
+
+        capacity:6,
+        size:'45 sqm',
+        bed:'3 Double Beds',
+        breakfast:'Breakfast included',
+        time:'Check-in 2:00 PM · Check-out 12:00 PM'
+    },
+    {
         id:'vip',
         name:'VIP Suite',
         price:10000,
@@ -1525,9 +1604,15 @@ function filterRooms(type, button){
 }
 
 function getRoomPrice(roomType){
+
     if(roomType === "Economy Room") return 3500;
+
     if(roomType === "Normal Room") return 5500;
+
+    if(roomType === "Family Room") return 7500;
+
     if(roomType === "VIP Suite") return 10000;
+
     return 0;
 }
 
@@ -1548,12 +1633,15 @@ function openBookingModal(roomType){
 
     if(roomType){
         document.getElementById('book-room').value = roomType;
+    }else{
+        document.getElementById('book-room').value = "";
     }
 
-    updateBookingSummary();
     adultCount = 1;
     childCount = 0;
     updateGuestInput();
+    updateBookingSummary();
+
     openModal('booking-modal');
 }
 
@@ -1566,13 +1654,71 @@ function updateBookingSummary(){
     const priceInput = document.getElementById('priceInput');
 
     const price = getRoomPrice(roomType);
+    const roomLimitText =
+    	document.getElementById('roomLimitText');
+
+    	if(roomType === "Economy Room"){
+    	    roomLimitText.textContent =
+    	    "Maximum 2 Guests";
+    	}
+
+    	else if(roomType === "Normal Room"){
+    	    roomLimitText.textContent =
+    	    "Maximum 4 Guests";
+    	}
+
+    	else if(roomType === "Family Room"){
+    	    roomLimitText.textContent =
+    	    "Maximum 6 Guests";
+    	}
+
+    	else if(roomType === "VIP Suite"){
+    	    roomLimitText.textContent =
+    	    "Maximum 8 Guests";
+    	}
+
+    	else{
+    	    roomLimitText.textContent = "";
+    	}
 
     if(roomType && checkIn && checkOut){
         const nights = nightsBetween(checkIn, checkOut);
 
         if(nights > 0){
-            const total = price * nights;
-            totalText.textContent = "₱" + total.toLocaleString() + " (" + nights + " night" + (nights > 1 ? "s" : "") + ")";
+        	let subtotal = price * nights;
+
+        	let tax = subtotal * 0.12;
+
+        	let serviceFee = 350;
+
+        	let discount = 0;
+
+        	const promo =
+        	document.getElementById('promoCode').value;
+
+        	if(promo === "SOLEIL10"){
+        	    discount = subtotal * 0.10;
+        	}
+
+        	const total =
+        	subtotal + tax + serviceFee - discount;
+        	totalText.innerHTML = `
+        	    Subtotal: ₱${subtotal.toLocaleString()}<br>
+        	    Tax (12%): ₱${tax.toLocaleString()}<br>
+        	    Service Fee: ₱${serviceFee.toLocaleString()}<br>
+        	    Discount: -₱${discount.toLocaleString()}<br><br>
+
+        	    <strong>
+        	    Total:
+        	    ₱${total.toLocaleString()}
+        	</strong>
+
+        	<br><br>
+
+        	<span style="font-size:0.8rem;color:var(--gray);">
+        	    Booking Reference will be generated after confirmation.
+        	</span>
+        	`;
             priceInput.value = total;
             summary.style.display = "block";
             return;
@@ -1601,7 +1747,15 @@ function confirmRealBooking(){
         return false;
     }
 
-    return confirm("Are you sure you want to confirm this reservation?");
+    const bookingRef =
+    	"HTL-" + Date.now().toString().slice(-6);
+
+    	alert(
+    	    "Reservation Confirmed!\n\nBooking Reference: "
+    	    + bookingRef
+    	);
+
+    	return true;
 }
 
 document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -1631,10 +1785,16 @@ let adultCount = 1;
 let childCount = 0;
 
 function getMaxGuests(){
-    const roomType = document.getElementById('book-room').value;
+
+    const roomType =
+    document.getElementById('book-room').value;
 
     if(roomType === "Economy Room") return 2;
+
     if(roomType === "Normal Room") return 4;
+
+    if(roomType === "Family Room") return 6;
+
     if(roomType === "VIP Suite") return 8;
 
     return 2;
@@ -1647,28 +1807,60 @@ function updateGuestInput(){
 }
 
 function changeGuest(type, amount){
+
     const maxGuests = getMaxGuests();
-    const total = adultCount + childCount;
+
+    const total =
+    adultCount + childCount;
+
+    const warning =
+    document.getElementById('guestWarning');
 
     if(type === 'adult'){
+
         if(amount === -1 && adultCount > 1){
             adultCount--;
         }
 
-        if(amount === 1 && total < maxGuests){
+        if(amount === 1){
+
+            if(total >= maxGuests){
+
+                warning.style.display = "block";
+
+                warning.textContent =
+                "Maximum guests exceeded for this room.";
+
+                return;
+            }
+
             adultCount++;
         }
     }
 
     if(type === 'child'){
+
         if(amount === -1 && childCount > 0){
             childCount--;
         }
 
-        if(amount === 1 && total < maxGuests){
+        if(amount === 1){
+
+            if(total >= maxGuests){
+
+                warning.style.display = "block";
+
+                warning.textContent =
+                "Maximum guests exceeded for this room.";
+
+                return;
+            }
+
             childCount++;
         }
     }
+
+    warning.style.display = "none";
 
     updateGuestInput();
 }
