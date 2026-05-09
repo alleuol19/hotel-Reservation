@@ -1158,18 +1158,60 @@ footer{
             </div>
 
             <div class="form-group">
+
     <label>Contact Number</label>
 
     <div class="phone-row">
 
+        <select id="countryCode"
+                name="countryCode"
+                class="country-code"
+                onchange="updatePhoneLimit()">
 
-        <select name="countryCode" class="country-code">
-            <option value="+63">🇵🇭 +63</option>
-            <option value="+1">🇺🇸 +1</option>
-            <option value="+81">🇯🇵 +81</option>
+            <option value="+63" data-length="11">
+                🇵🇭 +63
+            </option>
+
+            <option value="+1" data-length="10">
+                🇺🇸 +1
+            </option>
+
+            <option value="+81" data-length="10">
+                🇯🇵 +81
+            </option>
+
+            <option value="+82" data-length="10">
+                🇰🇷 +82
+            </option>
+
+            <option value="+86" data-length="11">
+                🇨🇳 +86
+            </option>
+
+            <option value="+44" data-length="10">
+                🇬🇧 +44
+            </option>
+
+            <option value="+61" data-length="9">
+                🇦🇺 +61
+            </option>
+
+            <option value="+65" data-length="8">
+                🇸🇬 +65
+            </option>
+
+            <option value="+971" data-length="9">
+                🇦🇪 +971
+            </option>
+
+            <option value="+91" data-length="10">
+                🇮🇳 +91
+            </option>
+
         </select>
 
         <input type="tel"
+               id="contactNumber"
                name="contactNumber"
                maxlength="11"
                pattern="[0-9]{11}"
@@ -1177,7 +1219,9 @@ footer{
                placeholder="09XXXXXXXXX"
                oninput="validatePhone(this)"
                required>
+
     </div>
+
 </div>
 
             <div class="form-group">
@@ -1876,13 +1920,59 @@ function capitalizeWords(input){
         .replace(/\b\w/g, char => char.toUpperCase());
 }
 function validatePhone(input){
-    input.value = input.value.replace(/\D/g, '');
 
-    if(input.value.length > 11){
-        input.value = input.value.slice(0, 11);
+    const country =
+    document.getElementById('countryCode');
+
+    const selected =
+    country.options[country.selectedIndex];
+
+    const maxLength =
+    selected.dataset.length;
+
+    input.value =
+    input.value.replace(/\D/g,'');
+
+    if(input.value.length > maxLength){
+
+        input.value =
+        input.value.slice(0, maxLength);
     }
 }
+function updatePhoneLimit(){
 
+    const country =
+    document.getElementById('countryCode');
+
+    const selected =
+    country.options[country.selectedIndex];
+
+    const maxLength =
+    selected.dataset.length;
+
+    const phoneInput =
+    document.getElementById('contactNumber');
+
+    phoneInput.maxLength = maxLength;
+
+    phoneInput.pattern =
+    `[0-9]{${maxLength}}`;
+
+    if(selected.value === "+63"){
+
+        phoneInput.placeholder =
+        "09XXXXXXXXX";
+    }
+
+    else{
+
+        phoneInput.placeholder =
+        "Enter phone number";
+    }
+
+    phoneInput.value = "";
+}
+updatePhoneLimit();
 </script>
 
 </body>
