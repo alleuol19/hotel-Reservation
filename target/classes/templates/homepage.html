@@ -113,7 +113,21 @@ nav{
     background:var(--blue-glow);
     color:var(--blue-light);
 }
+.phone-row{
+    display:flex;
+    gap:10px;
+}
 
+.country-code{
+    width:120px;
+    padding:12px 14px;
+    background:var(--dark3);
+    border:1.5px solid rgba(255,255,255,0.1);
+    color:white;
+    border-radius:9px;
+    font-size:0.87rem;
+    outline:none;
+}
 .nav-auth-btns{
     display:flex;
     align-items:center;
@@ -1109,7 +1123,9 @@ footer{
 
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" name="fullName" th:value="${session.userName}" required>
+                <input type="text"
+       name="fullName"
+       oninput="capitalizeWords(this)" th:value="${session.userName}" required>
             </div>
 
             <div class="form-group">
@@ -1118,14 +1134,27 @@ footer{
             </div>
 
             <div class="form-group">
-                <label>Contact Number</label>
-                <input type="text"
-       name="contactNumber"
-       maxlength="11"
-       pattern="[0-9]{11}"
-       placeholder="09XXXXXXXXX"
-       required>
-            </div>
+    <label>Contact Number</label>
+
+    <div class="phone-row">
+
+
+        <select name="countryCode" class="country-code">
+            <option value="+63">🇵🇭 +63</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+81">🇯🇵 +81</option>
+        </select>
+
+        <input type="tel"
+               name="contactNumber"
+               maxlength="11"
+               pattern="[0-9]{11}"
+               inputmode="numeric"
+               placeholder="09XXXXXXXXX"
+               oninput="validatePhone(this)"
+               required>
+    </div>
+</div>
 
             <div class="form-group">
                 <label>Room Type</label>
@@ -1555,9 +1584,19 @@ function updateBookingSummary(){
 }
 
 function confirmRealBooking(){
+
+    const form = document.querySelector('#booking-modal form');
+
+    if(!form.checkValidity()){
+        form.reportValidity();
+        return false;
+    }
+
     updateBookingSummary();
 
-    if(!document.getElementById('priceInput').value || document.getElementById('priceInput').value <= 0){
+    if(!document.getElementById('priceInput').value ||
+       document.getElementById('priceInput').value <= 0){
+
         alert("Please select a valid room and date before confirming your reservation.");
         return false;
     }
@@ -1638,6 +1677,20 @@ function resetGuestCounter(){
     childCount = 0;
     updateGuestInput();
 }
+function capitalizeWords(input){
+
+    input.value = input.value
+        .toLowerCase()
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+function validatePhone(input){
+    input.value = input.value.replace(/\D/g, '');
+
+    if(input.value.length > 11){
+        input.value = input.value.slice(0, 11);
+    }
+}
+
 </script>
 
 </body>
