@@ -1782,9 +1782,37 @@ function updateBookingSummary(){
         	const promo =
         	document.getElementById('promoCode').value;
 
-        	if(promo === "SOLEIL10"){
-        	    discount = subtotal * 0.10;
-        	}
+        	const usedCodes =
+        		JSON.parse(localStorage.getItem("usedPromoCodes") || "[]");
+
+        		const promoCodes = {
+
+        		    "SOLEIL1": 0.01,
+        		    "SOLEIL5": 0.05,
+        		    "SUMMER10": 0.10,
+        		    "WELCOME15": 0.15,
+        		    "LUXE20": 0.20,
+        		    "VIP25": 0.25,
+        		    "GOLD30": 0.30,
+        		    "FAMILY40": 0.40,
+        		    "MEGA50": 0.50,
+
+        		    // New user one-time huge discount
+        		    "NEWGUEST90": 0.90
+        		};
+
+        		if(promoCodes[promo]){
+
+        		    if(usedCodes.includes(promo)){
+
+        		        alert("Promo code already used.");
+
+        		    }else{
+
+        		        discount =
+        		        subtotal * promoCodes[promo];
+        		    }
+        		}
 
         	const total =
         	subtotal + tax + serviceFee - discount;
@@ -1872,7 +1900,37 @@ function confirmRealBooking(){
 
     document.getElementById('successReference').textContent =
         "Booking Reference: " + bookingRef;
+    const promo =
+    	document.getElementById('promoCode').value;
 
+    	const promoCodes = [
+    	    "SOLEIL1",
+    	    "SOLEIL5",
+    	    "SUMMER10",
+    	    "WELCOME15",
+    	    "LUXE20",
+    	    "VIP25",
+    	    "GOLD30",
+    	    "FAMILY40",
+    	    "MEGA50",
+    	    "NEWGUEST90"
+    	];
+
+    	if(promoCodes.includes(promo)){
+
+    	    const usedCodes =
+    	    JSON.parse(localStorage.getItem("usedPromoCodes") || "[]");
+
+    	    if(!usedCodes.includes(promo)){
+
+    	        usedCodes.push(promo);
+
+    	        localStorage.setItem(
+    	            "usedPromoCodes",
+    	            JSON.stringify(usedCodes)
+    	        );
+    	    }
+    	}
     closeModal('booking-modal');
     openModal('success-modal');
 
