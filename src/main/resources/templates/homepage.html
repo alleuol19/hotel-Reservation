@@ -1789,14 +1789,61 @@ function updateBookingSummary(){
 
         		    "NEWGUEST90": 0.90
         		};
-        		if(promoCodes[promo]){
-        		    if(usedCodes.includes(promo)){
-        		        alert("Promo code already used.");
-        		    }else{
-        		        discount =
-        		        subtotal * promoCodes[promo];
-        		    }
-        		}
+        		const promoInput =
+        			document.getElementById('promoCode');
+
+        			let promoError =
+        			document.getElementById('promoError');
+
+        			if(!promoError){
+
+        			    promoError = document.createElement("p");
+
+        			    promoError.id = "promoError";
+
+        			    promoError.style.color = "#ff6b6b";
+        			    promoError.style.fontSize = "0.82rem";
+        			    promoError.style.marginTop = "8px";
+
+        			    promoInput.parentElement.appendChild(promoError);
+        			}
+
+        			promoError.textContent = "";
+
+        			if(promo.trim() !== ""){
+
+        			    if(!promoCodes[promo]){
+
+        			        promoError.textContent =
+        			        "Invalid promo code.";
+
+        			        promoInput.style.border =
+        			        "1.5px solid #ff6b6b";
+
+        			    }
+        			    else if(usedCodes.includes(promo)){
+
+        			        promoError.textContent =
+        			        "Promo code already used.";
+
+        			        promoInput.style.border =
+        			        "1.5px solid #ff6b6b";
+
+        			    }
+        			    else{
+
+        			        promoInput.style.border =
+        			        "1.5px solid rgba(255,255,255,0.12)";
+
+        			        discount =
+        			        subtotal * promoCodes[promo];
+        			    }
+        			}
+        			else{
+
+        			    promoInput.style.border =
+        			    "1.5px solid rgba(255,255,255,0.12)";
+        			}
         	const total =
         	subtotal + tax + serviceFee - discount;
         	totalText.innerHTML = `
@@ -1858,14 +1905,13 @@ function confirmRealBooking(){
         alert("Please select a valid room and date before confirming your reservation.");
         return false;
     }
-    const bookingRef =
-        "HTL-" + Date.now().toString().slice(-6);
-    document.getElementById('bookingReferenceInput').value = bookingRef;
-    document.getElementById('successReference').textContent =
-        "Booking Reference: " + bookingRef;
     const promo =
     	document.getElementById('promoCode').value;
-    	const promoCodes = [
+
+    	const usedCodes =
+    	JSON.parse(localStorage.getItem("usedPromoCodes") || "[]");
+
+    	const validPromoCodes = [
     	    "SOLEIL1",
     	    "SOLEIL5",
     	    "SUMMER10",
@@ -1877,7 +1923,25 @@ function confirmRealBooking(){
     	    "MEGA50",
     	    "NEWGUEST90"
     	];
-    	if(promoCodes.includes(promo)){
+
+    	if(promo.trim() !== ""){
+
+    	    if(!validPromoCodes.includes(promo)){
+
+    	        return false;
+    	    }
+
+    	    if(usedCodes.includes(promo)){
+
+    	        return false;
+    	    }
+    	}
+    const bookingRef =
+        "HTL-" + Date.now().toString().slice(-6);
+    document.getElementById('bookingReferenceInput').value = bookingRef;
+    document.getElementById('successReference').textContent =
+        "Booking Reference: " + bookingRef;
+    if(validPromoCodes.includes(promo)){
 
     	    const usedCodes =
     	    JSON.parse(localStorage.getItem("usedPromoCodes") || "[]");
