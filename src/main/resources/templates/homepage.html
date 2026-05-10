@@ -1314,11 +1314,16 @@ footer{
             </div>
 
 <div th:if="${session.userEmail != null}">
-
+	<p style="
+    color:#d5aa54;
+    font-size:0.82rem;
+    margin-bottom:14px;
+    line-height:1.5;">
+    Payment will be processed upon admin/front desk confirmation.
+    Your reservation will remain pending until confirmed.
+</p>
     <button class="btn-book" type="submit">
-
         Confirm Reservation
-
     </button>
 
 </div>
