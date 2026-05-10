@@ -165,11 +165,26 @@ nav{
 }
 
 .user-badge a{
-    color:#f53c3c;
+    padding:8px 16px;
+
+    border-radius:10px;
+
+    border:1px solid rgba(245,60,60,0.35);
+
+    background:rgba(245,60,60,0.08);
+
+    color:#ff4d4d;
+
     text-decoration:none;
-    font-weight:600;
+
+    font-weight:700;
+
+    transition:0.2s;
 }
 
+.user-badge a:hover{
+    background:rgba(245,60,60,0.16);
+}
 .page{
     display:none;
     min-height:100vh;
@@ -831,6 +846,20 @@ footer{
         padding:0 1rem;
     }
 }
+.user-role-badge{
+    padding:5px 12px;
+    border-radius:8px;
+
+    background:rgba(26,110,245,0.12);
+
+    border:1px solid rgba(26,110,245,0.35);
+
+    color:#4c93ff;
+
+    font-size:0.74rem;
+    font-weight:700;
+    letter-spacing:0.08em;
+}
 </style>
 </head>
 
@@ -839,7 +868,19 @@ footer{
 <nav>
     <div class="nav-brand" onclick="showPage('home');setActiveNav('nav-home')">
         <img class="nav-logo" src="/images/logo.jpg" alt="Hotel De Soleil Logo">
-        <div class="nav-brand-text">Hotel De Soleil<span>Luxury · Quezon City</span></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+
+    <div class="nav-brand-text">
+        Hotel De Soleil
+        <span>Luxury · BGC</span>
+    </div>
+
+    <div th:if="${session.userEmail != null}"
+         class="user-role-badge">
+        USER
+    </div>
+
+</div>
     </div>
 
     <div class="nav-links">
@@ -987,7 +1028,8 @@ footer{
             <div class="contact-item">
                 <div class="icon">📍</div>
                 <strong>Address</strong>
-                <p>Quezon City, Philippines</p>
+                <p>Hotel De Soleil Global Tower
+26th Street, Bonifacio Global City, Taguig City, Metro Manila Philippines</p>
             </div>
         </div>
     </section>
