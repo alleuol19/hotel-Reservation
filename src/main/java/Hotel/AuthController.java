@@ -54,7 +54,8 @@ public class AuthController {
 	                booking.put("status", rs.getString("status"));
 	                booking.put("price", rs.getDouble("price"));
 	                booking.put("roomNumber", rs.getString("room_number"));
-
+	                booking.put("bookingReference",
+	                  rs.getString("booking_reference"));
 	                myReservations.add(booking);
 	            }
 
@@ -79,6 +80,7 @@ public class AuthController {
 	        @RequestParam String email,
 	        @RequestParam String checkInDate,
 	        @RequestParam String checkOutDate,
+	        @RequestParam String bookingReference,
 	        @RequestParam String roomType,
 	        @RequestParam int guests,
 	        @RequestParam double price
@@ -87,8 +89,8 @@ public class AuthController {
 	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
 
 	        String sql = "INSERT INTO booking " +
-	                "(full_name, contact_number, email, check_in_date, check_out_date, room_type, guests, price, status) " +
-	                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
+	        		"(full_name, contact_number, email, check_in_date, check_out_date, booking_reference, room_type, guests, price, status) " +
+	        		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
 
 	        PreparedStatement stmt = conn.prepareStatement(sql);
 
@@ -97,9 +99,10 @@ public class AuthController {
 	        stmt.setString(3, email);
 	        stmt.setString(4, checkInDate);
 	        stmt.setString(5, checkOutDate);
-	        stmt.setString(6, roomType);
-	        stmt.setInt(7, guests);
-	        stmt.setDouble(8, price);
+	        stmt.setString(6, bookingReference);
+	        stmt.setString(7, roomType);
+	        stmt.setInt(8, guests);
+	        stmt.setDouble(9, price);
 
 	        stmt.executeUpdate();
 
