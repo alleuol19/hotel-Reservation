@@ -1146,19 +1146,34 @@ footer{
 
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text"
+                <input type="text" readonly
+       id="bookingFullName"
        name="fullName"
-       oninput="capitalizeWords(this)" th:value="${session.userName}" required>
+       oninput="capitalizeWords(this)"
+       th:value="${session.userName}"
+       th:attr="data-original=${session.userName}"
+       required>
+
+<p id="nameError"
+   style="display:none;color:#ff6b6b;font-size:0.82rem;margin-top:8px;">
+    Name must match your account name.
+</p>
             </div>
 
             <div class="form-group">
                 <label>Email</label>
-                <input type="email"
+                <input type="email" readonly
        name="email"
+       id="bookingEmail"
        th:value="${session.userEmail}"
+       th:attr="data-original=${session.userEmail}"
        required
        oninvalid="this.setCustomValidity('Please enter a valid email address')"
        oninput="this.setCustomValidity('')">
+       <p id="emailError"
+   style="display:none;color:#ff6b6b;font-size:0.82rem;margin-top:8px;">
+    Email must match your account email.
+</p>
             </div>
 
             <div class="form-group">
@@ -1318,7 +1333,8 @@ footer{
     color:#d5aa54;
     font-size:0.82rem;
     margin-bottom:14px;
-    line-height:1.5;">
+    line-height:1.5;
+">
     Payment will be processed upon admin/front desk confirmation.
     Your reservation will remain pending until confirmed.
 </p>
@@ -1902,6 +1918,49 @@ function confirmRealBooking(){
         form.reportValidity();
         return false;
     }
+    const bookingName =
+    	document.getElementById('bookingFullName');
+
+    	const bookingEmail =
+    	document.getElementById('bookingEmail');
+
+    	const nameError =
+    	document.getElementById('nameError');
+
+    	const emailError =
+    	document.getElementById('emailError');
+
+    	let hasAccountError = false;
+
+    	if(bookingName.value.trim().toLowerCase() !==
+    	   bookingName.dataset.original.trim().toLowerCase()){
+
+    	    nameError.style.display = "block";
+    	    bookingName.style.border = "1.5px solid #ff6b6b";
+    	    hasAccountError = true;
+
+    	}else{
+
+    	    nameError.style.display = "none";
+    	    bookingName.style.border = "1.5px solid rgba(255,255,255,0.1)";
+    	}
+
+    	if(bookingEmail.value.trim().toLowerCase() !==
+    	   bookingEmail.dataset.original.trim().toLowerCase()){
+
+    	    emailError.style.display = "block";
+    	    bookingEmail.style.border = "1.5px solid #ff6b6b";
+    	    hasAccountError = true;
+
+    	}else{
+
+    	    emailError.style.display = "none";
+    	    bookingEmail.style.border = "1.5px solid rgba(255,255,255,0.1)";
+    	}
+
+    	if(hasAccountError){
+    	    return false;
+    	}
     updateBookingSummary();
     if(!document.getElementById('priceInput').value ||
        document.getElementById('priceInput').value <= 0){
