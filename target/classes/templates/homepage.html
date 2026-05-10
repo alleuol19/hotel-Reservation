@@ -1387,7 +1387,10 @@ footer{
             </div>
 
             <p class="auth-subtitle">Join Hotel De Soleil to manage your reservations.</p>
-
+			<p th:if="${signupError}"
+   			style="color:#ff6b6b;font-size:0.85rem;margin-bottom:15px;">
+    		Account already exists. Please use a different name or email.
+			</p>
             <div class="form-row">
                 <div class="form-group">
                     <label><i class="fa-solid fa-user"></i> First Name</label>
@@ -1413,8 +1416,10 @@ footer{
                id="signupPassword"
                name="password"
                placeholder="At least 6 characters"
-               required
-               style="padding-right:45px;">
+               minlength="6"
+       		   maxlength="20"
+       		   required
+       		   style="padding-right:45px;">
 
         <i class="fa-solid fa-eye"
            onclick="togglePassword('signupPassword', this)"
@@ -1435,11 +1440,16 @@ footer{
 
     <div style="position:relative;">
         <input type="password"
-               id="signupConfirmPassword"
-               placeholder="Repeat password"
-               required
-               style="padding-right:45px;">
-
+       id="signupConfirmPassword"
+       placeholder="Repeat password"
+       minlength="6"
+       maxlength="20"
+       required
+       style="padding-right:45px;">
+       <p id="passwordWarning"
+   style="display:none;color:#ff6b6b;font-size:0.82rem;margin-top:8px;">
+    Passwords do not match.
+</p>
         <i class="fa-solid fa-eye"
            onclick="togglePassword('signupConfirmPassword', this)"
            style="
@@ -1475,6 +1485,10 @@ footer{
                 <button type="button" class="modal-close" onclick="closeModal('login-modal')">✕</button>
             </div>
             <p class="auth-subtitle">Log in to view and manage your reservations.</p>
+            <p th:if="${loginError}"
+   			style="color:#ff6b6b;font-size:0.85rem;margin-bottom:15px;">
+    		No account found or incorrect password.
+			</p>
             <div class="form-group">
                 <label><i class="fa-solid fa-envelope"></i> Email Address</label>
                 <input type="email" name="email" placeholder="juan@email.com" required>
@@ -1514,11 +1528,39 @@ footer{
 </div>
 <script>
 document.querySelector('#signup-modal form')
-.addEventListener('submit', function(){
+.addEventListener('submit', function(e){
+
     const first =
         document.querySelector('[name="firstName"]').value;
+
     const last =
         document.querySelector('[name="lastName"]').value;
+
+    const password =
+        document.getElementById('signupPassword').value;
+
+    const confirmPassword =
+        document.getElementById('signupConfirmPassword').value;
+
+    const warning =
+        document.getElementById('passwordWarning');
+
+    if(password.length < 6 || password.length > 20){
+        warning.style.display = "block";
+        warning.textContent = "Password must be 6 to 20 characters.";
+        e.preventDefault();
+        return;
+    }
+
+    if(password !== confirmPassword){
+        warning.style.display = "block";
+        warning.textContent = "Passwords do not match.";
+        e.preventDefault();
+        return;
+    }
+
+    warning.style.display = "none";
+
     document.getElementById('fullNameInput').value =
         first + " " + last;
 });
@@ -1983,6 +2025,15 @@ function goToReservations(){
     closeModal('success-modal');
     showPage('reservations');
     setActiveNav('nav-res');
+}
+const params = new URLSearchParams(window.location.search);
+
+if(params.has("loginError")){
+    openModal("login-modal");
+}
+
+if(params.has("signupError")){
+    openModal("signup-modal");
 }
 </script>
 </body>

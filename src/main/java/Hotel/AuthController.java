@@ -27,7 +27,12 @@ public class AuthController {
 	static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
 	
 	@GetMapping("/")
-	public String homepage(HttpSession session, Model model) {
+	public String homepage(
+	        HttpSession session,
+	        Model model,
+	        @RequestParam(required=false) String loginError,
+	        @RequestParam(required=false) String signupError
+	) {
 
 	    String userEmail = (String) session.getAttribute("userEmail");
 
@@ -67,12 +72,11 @@ public class AuthController {
 	            e.printStackTrace();
 	        }
 	    }
-
 	    model.addAttribute("myReservations", myReservations);
-
+	    model.addAttribute("loginError", loginError != null);
+	    model.addAttribute("signupError", signupError != null);
 	    return "homepage";
 	}
-
 	@PostMapping("/save-booking")
 	public String saveBooking(
 	        @RequestParam String fullName,
@@ -131,7 +135,29 @@ public class AuthController {
 
 	        Connection conn =
 	                DriverManager.getConnection(url, dbUser, dbPass);
+	        String checkSql =
+	        		"SELECT COUNT(*) FROM users WHERE full_name = ? OR email = ?";
 
+	        		PreparedStatement checkStmt =
+	        		conn.prepareStatement(checkSql);
+
+	        		checkStmt.setString(1, fullName);
+	        		checkStmt.setString(2, email);
+
+	        		ResultSet checkRs =
+	        		checkStmt.executeQuery();
+
+	        		if(checkRs.next() && checkRs.getInt(1) > 0){
+
+	        		    checkRs.close();
+	        		    checkStmt.close();
+	        		    conn.close();
+
+	        		    return "redirect:/?signupError=true";
+	        		}
+
+	        		checkRs.close();
+	        		checkStmt.close();
 	        String sql =
 	                "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)";
 
@@ -179,8 +205,9 @@ public class AuthController {
 	        if (rs.next()) {
 	            session.setAttribute("userName", rs.getString("full_name"));
 	            session.setAttribute("userEmail", rs.getString("email"));
+	        }else {
+	            return "redirect:/?loginError=true";
 	        }
-
 	        rs.close();
 	        stmt.close();
 	        conn.close();
