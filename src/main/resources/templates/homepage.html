@@ -1172,7 +1172,7 @@ footer{
                 class="country-code"
                 onchange="updatePhoneLimit()">
 
-            <option value="+63" data-length="11">
+            <option value="+63" data-length="10">
                 🇵🇭 +63
             </option>
 
@@ -1217,10 +1217,10 @@ footer{
         <input type="tel"
                id="contactNumber"
                name="contactNumber"
-               maxlength="11"
-               pattern="[0-9]{11}"
+               maxlength="10"
+               pattern="[0-9]{10}"
                inputmode="numeric"
-               placeholder="09XXXXXXXXX"
+               placeholder="9123456789"
                oninput="validatePhone(this)"
                required>
 
@@ -1253,7 +1253,7 @@ footer{
 
                 <div class="form-group">
                     <label>Check-out Date</label>
-                    <input type="date" id="book-checkout" name="checkOutDate" onchange="updateBookingSummary()" required>
+                    <input type="date" id="book-checkout" name="checkOutDate" onchange="updateCheckoutMin();updateBookingSummary()" required>
                 </div>
             </div>
 
@@ -1300,6 +1300,7 @@ footer{
        oninput="updateBookingSummary()"
            placeholder="Promo Code"
            style="
+           		text-transform:uppercase;
                 width:100%;
                 padding:12px;
                 border-radius:9px;
@@ -1311,18 +1312,6 @@ footer{
                 <p style="font-size:0.82rem;color:var(--gray);">Estimated Total</p>
                 <p id="booking-total" style="font-size:1.2rem;font-weight:700;color:var(--blue-light);"></p>
             </div>
-
-            <div th:if="${session.userEmail == null}">
-<button
-    type="button"
-    class="btn-book"
-    onclick="closeModal('booking-modal'); openModal('login-modal');">
-
-    Log In First To Book
-
-</button>
-
-</div>
 
 <div th:if="${session.userEmail != null}">
 
@@ -1414,6 +1403,7 @@ footer{
     <div style="position:relative;">
         <input type="password"
                id="signupPassword"
+               autocomplete="new-password"
                name="password"
                placeholder="At least 6 characters"
                minlength="6"
@@ -1446,10 +1436,6 @@ footer{
        maxlength="20"
        required
        style="padding-right:45px;">
-       <p id="passwordWarning"
-   style="display:none;color:#ff6b6b;font-size:0.82rem;margin-top:8px;">
-    Passwords do not match.
-</p>
         <i class="fa-solid fa-eye"
            onclick="togglePassword('signupConfirmPassword', this)"
            style="
@@ -1461,6 +1447,10 @@ footer{
                 color:var(--gray);">
         </i>
     </div>
+    <p id="passwordWarning"
+   style="display:none;color:#ff6b6b;font-size:0.82rem;margin-top:8px;">
+    Passwords do not match.
+</p>
 </div>
 			<input type="hidden"
        id="fullNameInput"
@@ -1498,6 +1488,7 @@ footer{
     <div style="position:relative;">
         <input type="password"
                id="loginPassword"
+               autocomplete="current-password"
                name="password"
                placeholder="Your password"
                required
@@ -1581,7 +1572,7 @@ const ROOMS = [
             'Complimentary Water'],
         capacity:2,
         size:'22 sqm',
-        bed:'1 Double Bed',
+        bed:'2 Single Beds',
         breakfast:'Breakfast not included',
     },
     {
@@ -1618,14 +1609,15 @@ const ROOMS = [
             'Air Conditioning',
             'Smart TV',
             'Mini Refrigerator',
+            'Mini Living Area',
             'Dining Area',
             'Daily Housekeeping',
             'Fresh Towels',
-            'Complimentary Water'
+            'Hot & Cold Shower',
         ],
         capacity:6,
         size:'45 sqm',
-        bed:'3 Double Beds',
+        bed:'2 Queen Beds + 1 Double Deck',
         breakfast:'Breakfast included',
     },
     {
@@ -1634,7 +1626,7 @@ const ROOMS = [
         price:10000,
         type:'vip',
         img:'/images/vip-suite.png',
-        desc:'Luxury accommodation with premium hotel services.',
+        desc:'Luxury suite with spacious living area and premium hotel experience.',
         amenities:[
             'Free Wi-Fi',
             'Premium Smart TV',
@@ -1642,14 +1634,15 @@ const ROOMS = [
             'Jacuzzi',
             'Luxury Bathroom',
             'Living Area',
+            'Dining Area',
             'Coffee Machine',
             '24/7 Butler Service',
             'Private Balcony',
             'Premium Toiletries'
         ],
         capacity:8,
-        size:'55 sqm',
-        bed:'1 King Bed + Sofa Bed',
+        size:'70 sqm',
+        bed:'3 Queen Beds + 2 Sofa Beds',
         breakfast:'Premium breakfast included',
     }
 ];
@@ -1714,6 +1707,14 @@ function nightsBetween(a,b){
     return Math.max(0, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)));
 }
 function openBookingModal(roomType){
+	const isLoggedIn =
+		document.querySelector('.user-badge');
+
+		if(!isLoggedIn){
+
+		    openModal('login-modal');
+		    return;
+		}
     const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
     document.getElementById('book-checkin').value = today;
@@ -1769,6 +1770,8 @@ function updateBookingSummary(){
         	let discount = 0;
         	const promo =
         	document.getElementById('promoCode').value;
+        	document.getElementById('promoCode').value =
+        	promo.toUpperCase();
         	const usedCodes =
         		JSON.parse(localStorage.getItem("usedPromoCodes") || "[]");
         		const promoCodes = {
@@ -1955,7 +1958,7 @@ function confirmRealBooking(){
     openModal('success-modal');
     setTimeout(() => {
         form.submit();
-    }, 1500);
+    }, 2500);
 
     return false;
 }
@@ -2051,11 +2054,18 @@ function validatePhone(input){
     selected.dataset.length;
     input.value =
     input.value.replace(/\D/g,'');
-    if(input.value.length > maxLength){
+    if(selected.value === "+63" &&
+    		   input.value.startsWith("63")){
 
-        input.value =
-        input.value.slice(0, maxLength);
-    }
+    		    input.value =
+    		    input.value.substring(2);
+    		}
+
+    		if(input.value.length > maxLength){
+
+    		    input.value =
+    		    input.value.slice(0, maxLength);
+    		}
 }
 function updatePhoneLimit(){
     const country =
@@ -2071,7 +2081,7 @@ function updatePhoneLimit(){
     `[0-9]{${maxLength}}`;
     if(selected.value === "+63"){
         phoneInput.placeholder =
-        "09XXXXXXXXX";
+        	"9123456789";
     }
     else{
         phoneInput.placeholder =
@@ -2093,6 +2103,31 @@ if(params.has("loginError")){
 
 if(params.has("signupError")){
     openModal("signup-modal");
+}
+function updateCheckoutMin(){
+
+    const checkIn =
+    document.getElementById('book-checkin').value;
+
+    const checkout =
+    document.getElementById('book-checkout');
+
+    if(checkIn){
+
+        const nextDay =
+        new Date(checkIn);
+
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        checkout.min =
+        nextDay.toISOString().split('T')[0];
+
+        if(checkout.value <= checkIn){
+
+            checkout.value =
+            checkout.min;
+        }
+    }
 }
 </script>
 </body>
