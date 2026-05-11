@@ -1129,8 +1129,6 @@ footer{
 <div id="page-reservations" class="page">
     
     <h2 class="page-title">My Reservations</h2>
-    <p class="page-sub">Your booking records are saved in the Admin.</p>
-
     <div th:if="${session.userEmail == null}">
         <p style="color:var(--gray);">Please log in first to view your reservations.</p>
     </div>
