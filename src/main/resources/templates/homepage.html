@@ -1206,7 +1206,7 @@ footer{
     <form id="bookingForm"
       th:action="@{/save-booking}"
       method="post"
-      onsubmit="return confirmRealBooking(event)">    
+      onsubmit="return confirmRealBooking()">   
 
             <div class="modal-header">
                 <h2>Reserve a Room</h2>
@@ -1941,14 +1941,24 @@ function updateBookingSummary(){
         			summary.style.display = "block";
 
         			totalText.innerHTML =
-        			`
-        			₱${Math.round(total).toLocaleString()}
-        			<br>
-        			<span style="font-size:0.78rem;color:var(--gray);font-weight:400;">
-        			${nights} night(s)
-        			</span>
-        			`;
-        			return;
+        				`
+        				<div style="font-size:0.9rem;line-height:1.7;">
+        				    <div>Subtotal: ₱${subtotal.toLocaleString()}</div>
+        				    <div>Tax (12%): ₱${tax.toLocaleString()}</div>
+        				    <div>Service Fee: ₱${serviceFee.toLocaleString()}</div>
+        				    <div>Discount: -₱${discount.toLocaleString()}</div>
+        				    <br>
+        				    <div style="font-size:1.15rem;font-weight:700;color:var(--blue-light);">
+        				        Total: ₱${Math.round(total).toLocaleString()}
+        				    </div>
+        				    <br>
+        				    <span style="font-size:0.78rem;color:var(--gray);font-weight:400;">
+        				        Booking Reference will be generated after confirmation.
+        				    </span>
+        				</div>
+        				`;
+
+        				return;e
         }
     }
     else{
@@ -1956,27 +1966,27 @@ function updateBookingSummary(){
         summary.style.display = "none";
     }
 }
-function confirmRealBooking(event){
+function confirmRealBooking(){
 
-    event.preventDefault();
+    updateBookingSummary();
 
-    const payment =
-    document.getElementById("paymentMethod").value;
-
-    const room =
-    document.getElementById("book-room").value;
-
-    const paymentError =
-    document.getElementById("paymentError");
+    const payment = document.getElementById("paymentMethod").value;
+    const room = document.getElementById("book-room").value;
+    const price = document.getElementById("priceInput").value;
+    const paymentError = document.getElementById("paymentError");
 
     if(room === ""){
+        alert("Please select a room type.");
         return false;
     }
 
     if(payment === ""){
-
         paymentError.style.display = "block";
+        return false;
+    }
 
+    if(!price || price <= 0){
+        alert("Please select a valid room and date.");
         return false;
     }
 
@@ -1985,23 +1995,11 @@ function confirmRealBooking(event){
     const reference =
     "HDS-" + Math.floor(100000 + Math.random() * 900000);
 
-    document.getElementById("bookingReferenceInput")
-    .value = reference;
+    document.getElementById("bookingReferenceInput").value = reference;
 
-    document.getElementById("successReference")
-    .innerText =
-    "Booking Reference: " + reference;
+    alert("Reservation submitted!\n\nBooking Reference: " + reference);
 
-    document.getElementById("success-modal")
-    .classList.add("open");
-
-    setTimeout(() => {
-
-        document.getElementById("bookingForm").submit();
-
-    }, 500);
-
-    return false;
+    return true;
 }
 document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', function(e){
