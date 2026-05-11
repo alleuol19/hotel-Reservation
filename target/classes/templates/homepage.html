@@ -1958,7 +1958,7 @@ function updateBookingSummary(){
         				</div>
         				`;
 
-        				return;e
+        				return;
         }
     }
     else{
@@ -1997,9 +1997,17 @@ function confirmRealBooking(){
 
     document.getElementById("bookingReferenceInput").value = reference;
 
-    alert("Reservation submitted!\n\nBooking Reference: " + reference);
+    document.getElementById("successReference").innerHTML =
+    	"Booking Reference:<br><strong>" + reference + "</strong>";
 
-    return true;
+    	closeModal("booking-modal");
+    	openModal("success-modal");
+
+    	setTimeout(() => {
+    	    document.getElementById("bookingForm").submit();
+    	}, 1500);
+
+    	return false;
 }
 document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', function(e){
