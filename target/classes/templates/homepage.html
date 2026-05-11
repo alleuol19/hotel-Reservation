@@ -1877,11 +1877,14 @@ function updateBookingSummary(){
         	let tax = subtotal * 0.12;
         	let serviceFee = 350;
         	let discount = 0;
-        	const promo =
-        	document.getElementById('promoCode').value;
-        	document.getElementById('promoCode').value =
-        	promo.toUpperCase();
         	
+        	const promo =
+        		document.getElementById('promoCode').value
+        		.trim()
+        		.toUpperCase();
+
+        		document.getElementById('promoCode').value = promo;
+
         		const promoCodes = {
         		    "SOLEIL1": 0.01,
         		    "SOLEIL5": 0.05,
@@ -1892,103 +1895,66 @@ function updateBookingSummary(){
         		    "GOLD30": 0.30,
         		    "FAMILY40": 0.40,
         		    "MEGA50": 0.50,
-
         		    "NEWGUEST90": 0.90
         		};
-        		const promoInput =
-        			document.getElementById('promoCode');
 
-        			let promoError =
-        			document.getElementById('promoError');
+        		let promoError =
+        		document.getElementById("promoError");
 
-        			if(!promoError){
+        		if(!promoError){
 
-        			    promoError = document.createElement("p");
+        		    promoError =
+        		    document.createElement("p");
 
-        			    promoError.id = "promoError";
+        		    promoError.id = "promoError";
 
-        			    promoError.style.color = "#ff6b6b";
-        			    promoError.style.fontSize = "0.82rem";
-        			    promoError.style.marginTop = "8px";
+        		    promoError.style.color = "#ff6b6b";
+        		    promoError.style.fontSize = "0.82rem";
+        		    promoError.style.marginTop = "8px";
 
-        			    promoInput.parentElement.appendChild(promoError);
-        			}
+        		    document.getElementById("promoCode")
+        		    .parentElement
+        		    .appendChild(promoError);
+        		}
 
-        			promoError.textContent = "";
+        		promoError.textContent = "";
 
-        			if(promo.trim() !== ""){
+        		if(promo !== ""){
 
-        			    if(!promoCodes[promo]){
+        		    if(promoCodes[promo]){
 
-        			        promoError.textContent =
-        			        "Invalid promo code.";
+        		        discount =
+        		        subtotal * promoCodes[promo];
 
-        			        promoInput.style.border =
-        			        "1.5px solid #ff6b6b";
+        		    }else{
 
-        			    }
-        			    else{
+        		        promoError.textContent =
+        		        "Invalid promo code.";
+        		    }
+        		}
+        		let total =
+        			subtotal + tax + serviceFee - discount;
 
-        			        promoInput.style.border =
-        			        "1.5px solid rgba(255,255,255,0.12)";
+        			priceInput.value =
+        			Math.round(total);
 
-        			        discount =
-        			        subtotal * promoCodes[promo];
-        			    }
-        			}
-        			else{
+        			summary.style.display = "block";
 
-        			    promoInput.style.border =
-        			    "1.5px solid rgba(255,255,255,0.12)";
-        			}
-        	const total =
-        	subtotal + tax + serviceFee - discount;
-        	totalText.innerHTML = `
-        		<div style="
-        		    font-size:0.9rem;
-        		    line-height:1.7;
-        		">
-        		    <div>
-        		        Subtotal:
-        		        ₱${subtotal.toLocaleString()}
-        		    </div>
-        		    <div>
-        		        Tax (12%):
-        		        ₱${tax.toLocaleString()}
-        		    </div>
-        		    <div>
-        		        Service Fee:
-        		        ₱${serviceFee.toLocaleString()}
-        		    </div>
-        		    <div>
-        		        Discount:
-        		        -₱${discount.toLocaleString()}
-        		    </div>
-        		    <br>
-        		    <div style="
-        		        font-size:1.15rem;
-        		        font-weight:700;
-        		        color:var(--blue-light);
-        		    ">
-        		        Total:
-        		        ₱${total.toLocaleString()}
-        		    </div>
-        		    <br>
-        		    <span style="
-        		        font-size:0.78rem;
-        		        color:var(--gray);
-        		    ">
-        		        Booking Reference will be generated after confirmation.
-        		    </span>
-        		</div>
-        		`;
-            priceInput.value = total;
-            summary.style.display = "block";
-            return;
+        			totalText.innerHTML =
+        			`
+        			₱${Math.round(total).toLocaleString()}
+        			<br>
+        			<span style="font-size:0.78rem;color:var(--gray);font-weight:400;">
+        			${nights} night(s)
+        			</span>
+        			`;
+        			return;
         }
     }
-    priceInput.value = price;
-    summary.style.display = "none";
+    else{
+        priceInput.value = "";
+        summary.style.display = "none";
+    }
 }
 function confirmRealBooking(event){
 
