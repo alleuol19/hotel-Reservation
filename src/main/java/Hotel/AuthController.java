@@ -1,6 +1,4 @@
 package Hotel;
-
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,18 +12,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import jakarta.servlet.http.HttpSession;
-
-
-
 @Controller
 public class AuthController {
 
 	static String url = "jdbc:mysql://mysql.railway.internal:3306/railway";
 	static String dbUser = "root";
 	static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
-	
 	@GetMapping("/")
 	public String homepage(
 	        HttpSession session,
@@ -33,26 +26,17 @@ public class AuthController {
 	        @RequestParam(required=false) String loginError,
 	        @RequestParam(required=false) String signupError
 	) {
-
 	    String userEmail = (String) session.getAttribute("userEmail");
-
 	    List<Map<String, Object>> myReservations = new ArrayList<>();
-
 	    if (userEmail != null) {
-
 	        try {
 	            Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
 	            String sql = "SELECT * FROM booking WHERE email = ? ORDER BY id DESC";
 	            PreparedStatement stmt = conn.prepareStatement(sql);
-
 	            stmt.setString(1, userEmail);
-
 	            ResultSet rs = stmt.executeQuery();
-
 	            while (rs.next()) {
 	                Map<String, Object> booking = new HashMap<>();
-
 	                booking.put("roomType", rs.getString("room_type"));
 	                booking.put("checkInDate", rs.getString("check_in_date"));
 	                booking.put("checkOutDate", rs.getString("check_out_date"));
@@ -63,11 +47,9 @@ public class AuthController {
 	                  rs.getString("booking_reference"));
 	                myReservations.add(booking);
 	            }
-
 	            rs.close();
 	            stmt.close();
 	            conn.close();
-
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	        }
@@ -91,13 +73,10 @@ public class AuthController {
 	) {
 	    try {
 	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
 	        String sql = "INSERT INTO booking " +
 	        		"(full_name, contact_number, email, check_in_date, check_out_date, booking_reference, room_type, guests, price, status) " +
 	        		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
-
 	        PreparedStatement stmt = conn.prepareStatement(sql);
-
 	        stmt.setString(1, fullName);
 	        stmt.setString(2, contactNumber);
 	        stmt.setString(3, email);
@@ -107,19 +86,14 @@ public class AuthController {
 	        stmt.setString(7, roomType);
 	        stmt.setInt(8, guests);
 	        stmt.setDouble(9, price);
-
 	        stmt.executeUpdate();
-
 	        stmt.close();
 	        conn.close();
-
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
-
 	    return "redirect:/";
 	}
-	
 	@PostMapping("/signup")
 	public String signup(
 	        @RequestParam String firstName,
@@ -128,63 +102,44 @@ public class AuthController {
 	        @RequestParam String password,
 	        HttpSession session
 	) {
-
 	    String fullName = firstName + " " + lastName;
-
 	    try {
-
 	        Connection conn =
 	                DriverManager.getConnection(url, dbUser, dbPass);
 	        String checkSql =
 	        		"SELECT COUNT(*) FROM users WHERE full_name = ? OR email = ?";
-
 	        		PreparedStatement checkStmt =
 	        		conn.prepareStatement(checkSql);
-
 	        		checkStmt.setString(1, fullName);
 	        		checkStmt.setString(2, email);
-
 	        		ResultSet checkRs =
 	        		checkStmt.executeQuery();
-
 	        		if(checkRs.next() && checkRs.getInt(1) > 0){
-
 	        		    checkRs.close();
 	        		    checkStmt.close();
 	        		    conn.close();
-
 	        		    return "redirect:/?signupError=true";
 	        		}
-
 	        		checkRs.close();
 	        		checkStmt.close();
 	        String sql =
 	                "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)";
-
 	        PreparedStatement stmt =
 	                conn.prepareStatement(sql);
-
 	        stmt.setString(1, fullName);
 	        stmt.setString(2, email);
 	        stmt.setString(3, password);
-
 	        stmt.executeUpdate();
-
 	        stmt.close();
 	        conn.close();
-
 	        session.setAttribute("userName", fullName);
 	        session.setAttribute("userEmail", email);
-
 	    } catch (Exception e) {
 
 	        e.printStackTrace();
-
 	    }
-
 	    return "redirect:/";
 	}
-
 	@PostMapping("/login")
 	public String login(
 	        @RequestParam String email,
@@ -193,15 +148,11 @@ public class AuthController {
 	) {
 	    try {
 	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
 	        String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
 	        PreparedStatement stmt = conn.prepareStatement(sql);
-
 	        stmt.setString(1, email);
 	        stmt.setString(2, password);
-
 	        ResultSet rs = stmt.executeQuery();
-
 	        if (rs.next()) {
 	            session.setAttribute("userName", rs.getString("full_name"));
 	            session.setAttribute("userEmail", rs.getString("email"));
@@ -211,51 +162,36 @@ public class AuthController {
 	        rs.close();
 	        stmt.close();
 	        conn.close();
-
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
-
 	    return "redirect:/";
 	}
-
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
 	    session.invalidate();
 	    return "redirect:/";
 	}
 	private List<String> getAvailableRooms(Connection conn, String roomType) {
-
 	    List<String> rooms = new ArrayList<>();
-
 	    int start = 101;
 	    int end = 110;
-
 	    if (roomType.equals("Economy Room")) {
-
 	        start = 101;
 	        end = 110;
-
 	    }
 	    else if (roomType.equals("Normal Room")) {
-
 	        start = 201;
 	        end = 210;
-
 	    }
 	    else if (roomType.equals("VIP Suite")) {
-
 	        start = 301;
 	        end = 310;
-
 	    }
-
 	    try {
 
 	        for (int i = start; i <= end; i++) {
-
 	            String roomNumber = "R" + i;
-
 	            String sql =
 	                    "SELECT COUNT(*) FROM booking " +
 	                    "WHERE room_number = ? " +
@@ -263,27 +199,19 @@ public class AuthController {
 
 	            PreparedStatement stmt =
 	                    conn.prepareStatement(sql);
-
 	            stmt.setString(1, roomNumber);
-
 	            ResultSet rs = stmt.executeQuery();
-
 	            if (rs.next() && rs.getInt(1) == 0) {
 
 	                rooms.add(roomNumber);
-
 	            }
-
 	            rs.close();
 	            stmt.close();
 	        }
-
 	    } catch (Exception e) {
-
 	        e.printStackTrace();
 
 	    }
-
 	    return rooms;
 	}
 	@GetMapping("/admin-dashboard")
@@ -291,30 +219,20 @@ public class AuthController {
 	        HttpSession session,
 	        Model model
 	) {
-
 	    if(session.getAttribute("admin") == null) {
 	        return "redirect:/admin-login";
 	    }
-
 	    List<Map<String, Object>> pendingBookings = new ArrayList<>();
 	    List<Map<String, Object>> successfulBookings = new ArrayList<>();
 	    List<Map<String, Object>> cancelledBookings = new ArrayList<>();
 	    List<Map<String, Object>> users = new ArrayList<>();
-
 	    try {
-
 	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
-
 	        String sql = "SELECT * FROM booking ORDER BY id DESC";
-
 	        PreparedStatement stmt = conn.prepareStatement(sql);
-
 	        ResultSet rs = stmt.executeQuery();
-
 	        while(rs.next()) {
-
 	            Map<String, Object> booking = new HashMap<>();
-
 	            booking.put("id", rs.getInt("id"));
 	            booking.put("fullName", rs.getString("full_name"));
 	            booking.put("contactNumber", rs.getString("contact_number"));
