@@ -1203,7 +1203,10 @@ footer{
 
 <div class="modal-overlay" id="booking-modal">
     <div class="modal">
-        <form th:action="@{/save-booking}" method="post" onsubmit="return confirmRealBooking()">
+    <form id="bookingForm"
+      th:action="@{/save-booking}"
+      method="post"
+      onsubmit="return confirmRealBooking(event)">    
 
             <div class="modal-header">
                 <h2>Reserve a Room</h2>
@@ -1987,114 +1990,50 @@ function updateBookingSummary(){
     priceInput.value = price;
     summary.style.display = "none";
 }
-function confirmRealBooking(){
-    const form = document.querySelector('#booking-modal form');
-    if(!form.checkValidity()){
-        form.reportValidity();
+function confirmRealBooking(event){
+
+    event.preventDefault();
+
+    const payment =
+    document.getElementById("paymentMethod").value;
+
+    const room =
+    document.getElementById("book-room").value;
+
+    const paymentError =
+    document.getElementById("paymentError");
+
+    if(room === ""){
         return false;
     }
-    const paymentMethod =
-    	document.getElementById('paymentMethod');
 
-    	const paymentError =
-    	document.getElementById('paymentError');
+    if(payment === ""){
 
-    	if(paymentMethod.value === ""){
+        paymentError.style.display = "block";
 
-    	    paymentError.style.display = "block";
-    	    paymentMethod.style.border = "1.5px solid #ff6b6b";
-
-    	    return false;
-
-    	}else{
-
-    	    paymentError.style.display = "none";
-    	    paymentMethod.style.border = "1.5px solid rgba(255,255,255,0.1)";
-    	}
-    const bookingName =
-    	document.getElementById('bookingFullName');
-
-    	const bookingEmail =
-    	document.getElementById('bookingEmail');
-
-    	const nameError =
-    	document.getElementById('nameError');
-
-    	const emailError =
-    	document.getElementById('emailError');
-
-    	let hasAccountError = false;
-
-    	if(bookingName.value.trim().toLowerCase() !==
-    	   bookingName.dataset.original.trim().toLowerCase()){
-
-    	    nameError.style.display = "block";
-    	    bookingName.style.border = "1.5px solid #ff6b6b";
-    	    hasAccountError = true;
-
-    	}else{
-
-    	    nameError.style.display = "none";
-    	    bookingName.style.border = "1.5px solid rgba(255,255,255,0.1)";
-    	}
-
-    	if(bookingEmail.value.trim().toLowerCase() !==
-    	   bookingEmail.dataset.original.trim().toLowerCase()){
-
-    	    emailError.style.display = "block";
-    	    bookingEmail.style.border = "1.5px solid #ff6b6b";
-    	    hasAccountError = true;
-
-    	}else{
-
-    	    emailError.style.display = "none";
-    	    bookingEmail.style.border = "1.5px solid rgba(255,255,255,0.1)";
-    	}
-
-    	if(hasAccountError){
-    	    return false;
-    	}
-    updateBookingSummary();
-    if(!document.getElementById('priceInput').value ||
-       document.getElementById('priceInput').value <= 0){
-        alert("Please select a valid room and date before confirming your reservation.");
         return false;
     }
-    const promo =
-    	document.getElementById('promoCode').value;
 
+    paymentError.style.display = "none";
 
-    	const validPromoCodes = [
-    	    "SOLEIL1",
-    	    "SOLEIL5",
-    	    "SUMMER10",
-    	    "WELCOME15",
-    	    "LUXE20",
-    	    "VIP25",
-    	    "GOLD30",
-    	    "FAMILY40",
-    	    "MEGA50",
-    	    "NEWGUEST90"
-    	];
+    const reference =
+    "HDS-" + Math.floor(100000 + Math.random() * 900000);
 
-    	if(promo.trim() !== ""){
+    document.getElementById("bookingReferenceInput")
+    .value = reference;
 
-    	    if(!validPromoCodes.includes(promo)){
+    document.getElementById("successReference")
+    .innerText =
+    "Booking Reference: " + reference;
 
-    	        return false;
-    	    }
+    document.getElementById("success-modal")
+    .classList.add("open");
 
-    	}
-    const bookingRef =
-        "HTL-" + Date.now().toString().slice(-6);
-    document.getElementById('bookingReferenceInput').value = bookingRef;
-    document.getElementById('successReference').textContent =
-        "Booking Reference: " + bookingRef;
-    closeModal('booking-modal');
-    openModal('success-modal');
     setTimeout(() => {
-        form.submit();
-    }, 2500);
+
+        document.getElementById("bookingForm").submit();
+
+    }, 500);
 
     return false;
 }
