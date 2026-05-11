@@ -2002,12 +2002,15 @@ function confirmRealBooking(){
 
     	closeModal("booking-modal");
     	openModal("success-modal");
+    	
+    	document.getElementById("bookingForm").onsubmit = null;
 
     	setTimeout(() => {
     	    document.getElementById("bookingForm").submit();
-    	}, 1500);
+    	}, 1200);
 
     	return false;
+
 }
 document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', function(e){
@@ -2138,9 +2141,7 @@ function updatePhoneLimit(){
 }
 updatePhoneLimit();
 function goToReservations(){
-    closeModal('success-modal');
-    showPage('reservations');
-    setActiveNav('nav-res');
+    window.location.href = "/";
 }
 const params = new URLSearchParams(window.location.search);
 

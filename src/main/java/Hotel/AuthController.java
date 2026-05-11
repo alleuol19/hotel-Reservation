@@ -72,11 +72,14 @@ public class AuthController {
 	        @RequestParam String bookingReference,
 	        @RequestParam String roomType,
 	        @RequestParam int guests,
-	        @RequestParam double price,
+	        @RequestParam(required=false, defaultValue="0") double price,
 	        @RequestParam String paymentMethod,
 	        @RequestParam(required=false) String promoCode
 	) {
-	    try {
+	    	if(price <= 0){
+	    	    return "redirect:/";
+	    	}
+	    	try {
 	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
 
 	        String finalPromoCode = null;
