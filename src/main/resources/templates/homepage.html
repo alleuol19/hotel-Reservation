@@ -1180,6 +1180,10 @@ footer{
                     <span th:text="${booking.roomNumber != null ? booking.roomNumber : 'Not assigned yet'}"></span>
                 </p>
                 <p>
+    				Payment:
+    			<span th:text="${booking.paymentMethod}"></span>
+				</p>
+                <p>
                     Total:
                     ₱<span th:text="${booking.price}"></span>
                 </p>
@@ -1203,6 +1207,15 @@ footer{
 
             <div class="modal-header">
                 <h2>Reserve a Room</h2>
+                <p th:if="${promoError == 'invalid'}"
+   style="color:#ff6b6b;font-size:0.85rem;margin-bottom:12px;">
+    Invalid promo code.
+</p>
+
+<p th:if="${promoError == 'used'}"
+   style="color:#ff6b6b;font-size:0.85rem;margin-bottom:12px;">
+    This promo code was already used on your account.
+</p>
                 <button type="button" class="modal-close" onclick="closeModal('booking-modal')">✕</button>
                 
             </div>
@@ -1391,8 +1404,16 @@ footer{
         <select id="paymentMethod"
         name="paymentMethod"
         required
-        style="width:100%;">
-
+        style="
+            width:100%;
+            height:48px;
+            padding:12px;
+            border-radius:9px;
+            background:var(--dark2);
+            border:1.5px solid rgba(255,255,255,0.12);
+            color:white;
+            font-size:0.87rem;
+            outline:none; ">
     <option value="">Select Payment</option>
     <option value="Cash">Cash</option>
     <option value="Card">Card</option>
@@ -1423,7 +1444,8 @@ footer{
         </label>
 
         <input type="text"
-               id="promoCode"
+       id="promoCode"
+       name="promoCode"
                oninput="updateBookingSummary()"
                placeholder="Enter code"
                style="
@@ -1907,8 +1929,7 @@ function updateBookingSummary(){
         	document.getElementById('promoCode').value;
         	document.getElementById('promoCode').value =
         	promo.toUpperCase();
-        	const usedCodes =
-        		JSON.parse(localStorage.getItem("usedPromoCodes") || "[]");
+        	
         		const promoCodes = {
         		    "SOLEIL1": 0.01,
         		    "SOLEIL5": 0.05,
@@ -1949,15 +1970,6 @@ function updateBookingSummary(){
 
         			        promoError.textContent =
         			        "Invalid promo code.";
-
-        			        promoInput.style.border =
-        			        "1.5px solid #ff6b6b";
-
-        			    }
-        			    else if(usedCodes.includes(promo)){
-
-        			        promoError.textContent =
-        			        "Promo code already used.";
 
         			        promoInput.style.border =
         			        "1.5px solid #ff6b6b";
@@ -2135,21 +2147,6 @@ function confirmRealBooking(){
     document.getElementById('bookingReferenceInput').value = bookingRef;
     document.getElementById('successReference').textContent =
         "Booking Reference: " + bookingRef;
-    if(validPromoCodes.includes(promo)){
-
-    	    const usedCodes =
-    	    JSON.parse(localStorage.getItem("usedPromoCodes") || "[]");
-
-    	    if(!usedCodes.includes(promo)){
-
-    	        usedCodes.push(promo);
-
-    	        localStorage.setItem(
-    	            "usedPromoCodes",
-    	            JSON.stringify(usedCodes)
-    	        );
-    	    }
-    	}
     closeModal('booking-modal');
     openModal('success-modal');
     setTimeout(() => {

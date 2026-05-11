@@ -24,7 +24,8 @@ public class AuthController {
 	        HttpSession session,
 	        Model model,
 	        @RequestParam(required=false) String loginError,
-	        @RequestParam(required=false) String signupError
+	        @RequestParam(required=false) String signupError,
+	        @RequestParam(required=false) String promoError
 	) {
 	    String userEmail = (String) session.getAttribute("userEmail");
 	    List<Map<String, Object>> myReservations = new ArrayList<>();
@@ -45,6 +46,7 @@ public class AuthController {
 	                booking.put("roomNumber", rs.getString("room_number"));
 	                booking.put("bookingReference",
 	                  rs.getString("booking_reference"));
+	                booking.put("paymentMethod", rs.getString("payment_method"));
 	                myReservations.add(booking);
 	            }
 	            rs.close();
@@ -57,6 +59,7 @@ public class AuthController {
 	    model.addAttribute("myReservations", myReservations);
 	    model.addAttribute("loginError", loginError != null);
 	    model.addAttribute("signupError", signupError != null);
+	    model.addAttribute("promoError", promoError);
 	    return "homepage";
 	}
 	@PostMapping("/save-booking")
@@ -69,14 +72,74 @@ public class AuthController {
 	        @RequestParam String bookingReference,
 	        @RequestParam String roomType,
 	        @RequestParam int guests,
-	        @RequestParam double price
+	        @RequestParam double price,
+	        @RequestParam String paymentMethod,
+	        @RequestParam(required=false) String promoCode
 	) {
 	    try {
 	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+
+	        String finalPromoCode = null;
+
+	        if(promoCode != null && !promoCode.trim().isEmpty()){
+
+	            String codeInput = promoCode.trim().toUpperCase();
+
+	            String checkPromo =
+	            "SELECT * FROM promo_codes WHERE UPPER(code) = ?";
+
+	            PreparedStatement promoStmt =
+	            conn.prepareStatement(checkPromo);
+
+	            promoStmt.setString(1, codeInput);
+
+	            ResultSet promoRs =
+	            promoStmt.executeQuery();
+
+	            if(!promoRs.next()){
+
+	                promoRs.close();
+	                promoStmt.close();
+	                conn.close();
+
+	                return "redirect:/?promoError=invalid";
+	            }
+
+	            finalPromoCode = promoRs.getString("code");
+
+	            promoRs.close();
+	            promoStmt.close();
+
+	            String checkUsed =
+	            		"SELECT COUNT(*) FROM booking WHERE email = ? AND UPPER(promo_code) = ?";
+
+	            		PreparedStatement usedStmt =
+	            		conn.prepareStatement(checkUsed);
+
+	            		usedStmt.setString(1, email);
+	            		usedStmt.setString(2, finalPromoCode.toUpperCase());
+
+	            		ResultSet usedRs =
+	            		usedStmt.executeQuery();
+
+	            		if(usedRs.next() && usedRs.getInt(1) > 0){
+
+	            		    usedRs.close();
+	            		    usedStmt.close();
+	            		    conn.close();
+
+	            		    return "redirect:/?promoError=used";
+	            		}
+
+	            		usedRs.close();
+	            		usedStmt.close();
+	        }
 	        String sql = "INSERT INTO booking " +
-	        		"(full_name, contact_number, email, check_in_date, check_out_date, booking_reference, room_type, guests, price, status) " +
-	        		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
+	        "(full_name, contact_number, email, check_in_date, check_out_date, booking_reference, room_type, guests, price, payment_method, promo_code, status) " +
+	        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
+
 	        PreparedStatement stmt = conn.prepareStatement(sql);
+
 	        stmt.setString(1, fullName);
 	        stmt.setString(2, contactNumber);
 	        stmt.setString(3, email);
@@ -86,12 +149,18 @@ public class AuthController {
 	        stmt.setString(7, roomType);
 	        stmt.setInt(8, guests);
 	        stmt.setDouble(9, price);
+	        stmt.setString(10, paymentMethod);
+	        stmt.setString(11, finalPromoCode);
+
 	        stmt.executeUpdate();
+
 	        stmt.close();
 	        conn.close();
+
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
+
 	    return "redirect:/";
 	}
 	@PostMapping("/signup")
@@ -326,47 +395,18 @@ public class AuthController {
 	@PostMapping("/confirm-booking")
 	public String confirmBooking(
 	        @RequestParam int bookingId,
-	        @RequestParam String paymentMethod
+	        @RequestParam String roomNumber
 	) {
-
 	    try {
-
 	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
 
-	        String roomType = "";
-
-	        String getRoom =
-	                "SELECT room_type FROM booking WHERE id=?";
-
-	        PreparedStatement getStmt =
-	                conn.prepareStatement(getRoom);
-
-	        getStmt.setInt(1, bookingId);
-
-	        ResultSet rs = getStmt.executeQuery();
-
-	        if(rs.next()) {
-	            roomType = rs.getString("room_type");
-	        }
-
-	        List<String> availableRooms =
-	                getAvailableRooms(conn, roomType);
-
-	        String assignedRoom = availableRooms.get(0);
-
 	        String sql =
-	                "UPDATE booking " +
-	                "SET status='SUCCESSFUL', " +
-	                "payment_method=?, " +
-	                "room_number=? " +
-	                "WHERE id=?";
+	        "UPDATE booking SET status='SUCCESSFUL', room_number=? WHERE id=?";
 
-	        PreparedStatement stmt =
-	                conn.prepareStatement(sql);
+	        PreparedStatement stmt = conn.prepareStatement(sql);
 
-	        stmt.setString(1, paymentMethod);
-	        stmt.setString(2, assignedRoom);
-	        stmt.setInt(3, bookingId);
+	        stmt.setString(1, roomNumber);
+	        stmt.setInt(2, bookingId);
 
 	        stmt.executeUpdate();
 
@@ -374,9 +414,7 @@ public class AuthController {
 	        conn.close();
 
 	    } catch(Exception e) {
-
 	        e.printStackTrace();
-
 	    }
 
 	    return "redirect:/admin-dashboard";
