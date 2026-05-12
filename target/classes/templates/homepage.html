@@ -1661,7 +1661,7 @@ Your booking will remain pending until the admin confirms it.
         </form>
     </div>
 </div>
-<script>
+<script th:inline="javascript">
 document.querySelector('#signup-modal form')
 .addEventListener('submit', function(e){
 
@@ -2194,42 +2194,7 @@ function goToReservations(){
 
     setActiveNav("nav-res");
 }
-window.addEventListener("load", function(){
 
-    const bookingSuccess =
-    "[[${bookingSuccess}]]";
-
-    if(bookingSuccess === "true"){
-
-        const reference =
-        sessionStorage.getItem(
-            "latestBookingReference"
-        );
-
-        if(reference){
-
-            const refBox =
-            document.getElementById(
-                "successReference"
-            );
-
-            refBox.innerHTML =
-            "Booking Reference<br><strong>" +
-            reference +
-            "</strong>";
-
-            closeModal("booking-modal");
-
-            document.getElementById(
-                "success-modal"
-            ).style.display = "flex";
-
-            document.getElementById(
-                "success-modal"
-            ).classList.add("open");
-        }
-    }
-});
 
 </script>
 </body>

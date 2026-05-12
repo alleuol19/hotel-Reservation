@@ -71,6 +71,17 @@ public class AuthController {
 	    		session.removeAttribute(
 	    		    "bookingSuccess"
 	    		);
+	    		String latestBookingReference =
+	    				(String) session.getAttribute("latestBookingReference");
+
+	    				model.addAttribute(
+	    				    "latestBookingReference",
+	    				    latestBookingReference
+	    				);
+
+	    				session.removeAttribute(
+	    				    "latestBookingReference"
+	    				);
 	    return "homepage";
 	}
 	@PostMapping("/save-booking")
@@ -81,19 +92,38 @@ public class AuthController {
 	        @RequestParam String email,
 	        @RequestParam String checkInDate,
 	        @RequestParam String checkOutDate,
-	        @RequestParam String bookingReference,
+	        @RequestParam(required=false) String bookingReference,
 	        @RequestParam String roomType,
 	        @RequestParam int guests,
-	        @RequestParam(required=false, defaultValue="0") double price,
 	        @RequestParam String paymentMethod,
 	        @RequestParam(required=false) String promoCode
 	) {
-
-	    if(price <= 0){
-	        return "redirect:/";
-	    }
-
 	    try {
+	        java.time.LocalDate in =
+	        java.time.LocalDate.parse(checkInDate);
+
+	        java.time.LocalDate out =
+	        java.time.LocalDate.parse(checkOutDate);
+
+	        long nights =
+	        java.time.temporal.ChronoUnit.DAYS.between(in, out);
+
+	        if(nights <= 0){
+	            return "redirect:/";
+	        }
+
+	        double basePrice = 0;
+
+	        if(roomType.equals("Economy Room")) basePrice = 3500;
+	        else if(roomType.equals("Normal Room")) basePrice = 5500;
+	        else if(roomType.equals("Family Room")) basePrice = 7500;
+	        else if(roomType.equals("VIP Suite")) basePrice = 10000;
+	        else return "redirect:/";
+
+	        double subtotal = basePrice * nights;
+	        double tax = subtotal * 0.12;
+	        double serviceFee = 350;
+	        double discount = 0;
 
 	        Connection conn =
 	        DriverManager.getConnection(url, dbUser, dbPass);
@@ -105,11 +135,11 @@ public class AuthController {
 	            String codeInput =
 	            promoCode.trim().toUpperCase();
 
-	            String checkPromo =
+	            String promoSql =
 	            "SELECT * FROM promo_codes WHERE UPPER(code)=?";
 
 	            PreparedStatement promoStmt =
-	            conn.prepareStatement(checkPromo);
+	            conn.prepareStatement(promoSql);
 
 	            promoStmt.setString(1, codeInput);
 
@@ -117,56 +147,58 @@ public class AuthController {
 	            promoStmt.executeQuery();
 
 	            if(!promoRs.next()){
-
 	                promoRs.close();
 	                promoStmt.close();
 	                conn.close();
-
 	                return "redirect:/";
 	            }
 
 	            finalPromoCode =
 	            promoRs.getString("code");
 
+	            double discountPercent =
+	            promoRs.getDouble("discount_percent");
+
 	            promoRs.close();
 	            promoStmt.close();
 
-	            String checkUsed =
-	            "SELECT COUNT(*) FROM booking " +
-	            "WHERE email=? AND UPPER(promo_code)=?";
+	            String usedSql =
+	            "SELECT COUNT(*) FROM booking WHERE email=? AND UPPER(promo_code)=?";
 
 	            PreparedStatement usedStmt =
-	            conn.prepareStatement(checkUsed);
+	            conn.prepareStatement(usedSql);
 
 	            usedStmt.setString(1, email);
-	            usedStmt.setString(
-	                2,
-	                finalPromoCode.toUpperCase()
-	            );
+	            usedStmt.setString(2, finalPromoCode.toUpperCase());
 
 	            ResultSet usedRs =
 	            usedStmt.executeQuery();
 
-	            if(usedRs.next() &&
-	               usedRs.getInt(1) > 0){
-
+	            if(usedRs.next() && usedRs.getInt(1) > 0){
 	                usedRs.close();
 	                usedStmt.close();
 	                conn.close();
-
 	                return "redirect:/";
 	            }
 
 	            usedRs.close();
 	            usedStmt.close();
+
+	            discount =
+	            subtotal * (discountPercent / 100.0);
+	        }
+
+	        double finalPrice =
+	        Math.round(subtotal + tax + serviceFee - discount);
+
+	        if(bookingReference == null || bookingReference.trim().isEmpty()){
+	            bookingReference =
+	            "HDS-" + (int)(100000 + Math.random() * 900000);
 	        }
 
 	        String sql =
 	        "INSERT INTO booking " +
-	        "(full_name, contact_number, email, " +
-	        "check_in_date, check_out_date, " +
-	        "booking_reference, room_type, guests, " +
-	        "price, payment_method, promo_code, status) " +
+	        "(full_name, contact_number, email, check_in_date, check_out_date, booking_reference, room_type, guests, price, payment_method, promo_code, status) " +
 	        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
 
 	        PreparedStatement stmt =
@@ -180,28 +212,22 @@ public class AuthController {
 	        stmt.setString(6, bookingReference);
 	        stmt.setString(7, roomType);
 	        stmt.setInt(8, guests);
-	        stmt.setDouble(9, price);
+	        stmt.setDouble(9, finalPrice);
 	        stmt.setString(10, paymentMethod);
 	        stmt.setString(11, finalPromoCode);
 
 	        stmt.executeUpdate();
 
-	        session.setAttribute(
-	            "userEmail",
-	            email
-	        );
-
-	        session.setAttribute(
-	            "bookingSuccess",
-	            true
-	        );
-
 	        stmt.close();
 	        conn.close();
 
-	    } catch(Exception e){
+	        session.setAttribute("userEmail", email);
+	        session.setAttribute("bookingSuccess", true);
+	        session.setAttribute("latestBookingReference", bookingReference);
 
+	    } catch(Exception e){
 	        e.printStackTrace();
+	        return "redirect:/";
 	    }
 
 	    return "redirect:/";
