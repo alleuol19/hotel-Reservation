@@ -2002,36 +2002,27 @@ function updateBookingSummary(){
 
 function confirmRealBooking(){
 
-    updateBookingSummary();
-
-    const payment = document.getElementById("paymentMethod").value;
-    const room = document.getElementById("book-room").value;
-    const price = document.getElementById("priceInput").value;
-    const paymentError = document.getElementById("paymentError");
-
-    if(room === ""){
-        alert("Please select a room type.");
-        return false;
-    }
+    const payment =
+        document.getElementById("paymentMethod").value;
 
     if(payment === ""){
-        paymentError.style.display = "block";
+        document.getElementById("paymentError").style.display = "block";
         return false;
     }
 
-    if(!price || price <= 0){
-        alert("Please select a valid room and date.");
-        return false;
-    }
+    document.getElementById("paymentError").style.display = "none";
 
-    paymentError.style.display = "none";
+    const ref =
+        "HTL-" + Math.floor(100000 + Math.random() * 900000);
 
-    const reference =
-    "HDS-" + Math.floor(100000 + Math.random() * 900000);
+    document.getElementById(
+        "bookingReferenceInput"
+    ).value = ref;
 
-    document.getElementById("bookingReferenceInput").value = reference;
-
-    sessionStorage.setItem("latestBookingReference", reference);
+    sessionStorage.setItem(
+        "latestBookingReference",
+        ref
+    );
 
     return true;
 }
@@ -2163,41 +2154,33 @@ function updatePhoneLimit(){
     phoneInput.value = "";
 }
 updatePhoneLimit();
-const params = new URLSearchParams(window.location.search);
 
-if(params.has("loginError")){
-    openModal("login-modal");
-}
-
-if(params.has("signupError")){
-    openModal("signup-modal");
-}
 function goToReservations(){
-
-    closeModal('success-modal');
-
-    showPage('reservations');
-
-    setActiveNav('nav-res');
-
-    sessionStorage.removeItem(
-        "latestBookingReference"
-    );
+    closeModal("success-modal");
+    showPage("reservations");
+    setActiveNav("nav-res");
+    sessionStorage.removeItem("latestBookingReference");
 }
-window.addEventListener("load", function(){
 
+window.addEventListener("DOMContentLoaded", function(){
     const params = new URLSearchParams(window.location.search);
 
-    if(params.has("bookingSuccess")){
+    if(params.has("loginError")){
+        openModal("login-modal");
+    }
 
-        const reference =
-        sessionStorage.getItem("latestBookingReference");
+    if(params.has("signupError")){
+        openModal("signup-modal");
+    }
+
+    if(params.get("bookingSuccess") === "true"){
+        const reference = sessionStorage.getItem("latestBookingReference");
 
         document.getElementById("successReference").innerHTML =
-        "Booking Reference:<br><strong>" + reference + "</strong>";
+            "Booking Reference:<br><strong>" + reference + "</strong>";
 
         openModal("success-modal");
-        window.history.replaceState({}, document.title, "/");
+        history.replaceState(null, "", "/");
     }
 });
 </script>

@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class AuthController {
 
-	static String url = "jdbc:mysql://root:qIOlaWsFbfipeyehbTLbiscGTAvfJyNv@tramway.proxy.rlwy.net:12964/railway";
+	static String url = "jdbc:mysql://tramway.proxy.rlwy.net:12964/railway";
 	static String dbUser = "root";
 	static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
 	@GetMapping("/")
@@ -71,7 +71,6 @@ public class AuthController {
 	public String saveBooking(
 	        @RequestParam String fullName,
 	        @RequestParam String contactNumber,
-	        @RequestParam String email,
 	        @RequestParam String checkInDate,
 	        @RequestParam String checkOutDate,
 	        @RequestParam String bookingReference,
@@ -79,12 +78,20 @@ public class AuthController {
 	        @RequestParam int guests,
 	        @RequestParam(required=false, defaultValue="0") double price,
 	        @RequestParam String paymentMethod,
-	        @RequestParam(required=false) String promoCode
+	        @RequestParam(required=false) String promoCode,
+	        HttpSession session
 	) {
-	    	if(price <= 0){
-	    	    return "redirect:/";
-	    	}
-	    	try {
+	    String email = (String) session.getAttribute("userEmail");
+
+	    if(email == null){
+	        return "redirect:/?loginError=true";
+	    }
+
+	    if(price <= 0){
+	        return "redirect:/?bookingError=true";
+	    }
+
+	    try {
 	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
 
 	        String finalPromoCode = null;
@@ -105,7 +112,6 @@ public class AuthController {
 	            promoStmt.executeQuery();
 
 	            if(!promoRs.next()){
-
 	                promoRs.close();
 	                promoStmt.close();
 	                conn.close();
@@ -119,29 +125,29 @@ public class AuthController {
 	            promoStmt.close();
 
 	            String checkUsed =
-	            		"SELECT COUNT(*) FROM booking WHERE email = ? AND UPPER(promo_code) = ?";
+	            "SELECT COUNT(*) FROM booking WHERE email = ? AND UPPER(promo_code) = ?";
 
-	            		PreparedStatement usedStmt =
-	            		conn.prepareStatement(checkUsed);
+	            PreparedStatement usedStmt =
+	            conn.prepareStatement(checkUsed);
 
-	            		usedStmt.setString(1, email);
-	            		usedStmt.setString(2, finalPromoCode.toUpperCase());
+	            usedStmt.setString(1, email);
+	            usedStmt.setString(2, finalPromoCode.toUpperCase());
 
-	            		ResultSet usedRs =
-	            		usedStmt.executeQuery();
+	            ResultSet usedRs =
+	            usedStmt.executeQuery();
 
-	            		if(usedRs.next() && usedRs.getInt(1) > 0){
+	            if(usedRs.next() && usedRs.getInt(1) > 0){
+	                usedRs.close();
+	                usedStmt.close();
+	                conn.close();
 
-	            		    usedRs.close();
-	            		    usedStmt.close();
-	            		    conn.close();
+	                return "redirect:/?promoError=used";
+	            }
 
-	            		    return "redirect:/?promoError=used";
-	            		}
-
-	            		usedRs.close();
-	            		usedStmt.close();
+	            usedRs.close();
+	            usedStmt.close();
 	        }
+
 	        String sql = "INSERT INTO booking " +
 	        "(full_name, contact_number, email, check_in_date, check_out_date, booking_reference, room_type, guests, price, payment_method, promo_code, status) " +
 	        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
@@ -170,7 +176,7 @@ public class AuthController {
 	        return "redirect:/?bookingError=true";
 	    }
 
-	      return "redirect:/?bookingSuccess=true";
+	    return "redirect:/?bookingSuccess=true";
 	}
 	@PostMapping("/signup")
 	public String signup(
