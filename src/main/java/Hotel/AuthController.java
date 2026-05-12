@@ -106,14 +106,10 @@ public class AuthController {
 	        @RequestParam(required=false) String promoCode
 	) {
 	    try {
-	        java.time.LocalDate in =
-	        java.time.LocalDate.parse(checkInDate);
+	        java.time.LocalDate in = java.time.LocalDate.parse(checkInDate);
+	        java.time.LocalDate out = java.time.LocalDate.parse(checkOutDate);
 
-	        java.time.LocalDate out =
-	        java.time.LocalDate.parse(checkOutDate);
-
-	        long nights =
-	        java.time.temporal.ChronoUnit.DAYS.between(in, out);
+	        long nights = java.time.temporal.ChronoUnit.DAYS.between(in, out);
 
 	        if(nights <= 0){
 	            return "redirect:/";
@@ -132,60 +128,46 @@ public class AuthController {
 	        double serviceFee = 350;
 	        double discount = 0;
 
-	        Connection conn =
-	        DriverManager.getConnection(url, dbUser, dbPass);
+	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
 
 	        String finalPromoCode = null;
 
 	        if(promoCode != null && !promoCode.trim().isEmpty()){
 
-	            String codeInput =
-	            promoCode.trim().toUpperCase();
+	            String codeInput = promoCode.trim().toUpperCase();
 
-	            String promoSql =
-	            "SELECT * FROM promo_codes WHERE UPPER(code)=?";
+	            double promoPercent = 0;
 
-	            PreparedStatement promoStmt =
-	            conn.prepareStatement(promoSql);
-
-	            promoStmt.setString(1, codeInput);
-
-	            ResultSet promoRs =
-	            promoStmt.executeQuery();
-
-	            if(!promoRs.next()){
-	                promoRs.close();
-	                promoStmt.close();
-	                conn.close();
+	            if(codeInput.equals("SOLEIL1")) promoPercent = 1;
+	            else if(codeInput.equals("SOLEIL5")) promoPercent = 5;
+	            else if(codeInput.equals("SUMMER10")) promoPercent = 10;
+	            else if(codeInput.equals("VIP15")) promoPercent = 15;
+	            else if(codeInput.equals("FAMILY20")) promoPercent = 20;
+	            else if(codeInput.equals("WELCOME25")) promoPercent = 25;
+	            else if(codeInput.equals("HOLIDAY30")) promoPercent = 30;
+	            else if(codeInput.equals("WEEKEND35")) promoPercent = 35;
+	            else if(codeInput.equals("LOYAL40")) promoPercent = 40;
+	            else if(codeInput.equals("SOLEIL50")) promoPercent = 50;
+	            else {
 	                session.setAttribute("promoError", "invalid");
+	                conn.close();
 	                return "redirect:/";
 	            }
-
-	            finalPromoCode =
-	            promoRs.getString("code");
-
-	            double discountPercent =
-	            promoRs.getDouble("discount_percent");
-
-	            promoRs.close();
-	            promoStmt.close();
 
 	            String usedSql =
 	            "SELECT COUNT(*) FROM booking WHERE email=? AND UPPER(promo_code)=?";
 
-	            PreparedStatement usedStmt =
-	            conn.prepareStatement(usedSql);
-
+	            PreparedStatement usedStmt = conn.prepareStatement(usedSql);
 	            usedStmt.setString(1, email);
-	            usedStmt.setString(2, finalPromoCode.toUpperCase());
+	            usedStmt.setString(2, codeInput);
 
-	            ResultSet usedRs =
-	            usedStmt.executeQuery();
+	            ResultSet usedRs = usedStmt.executeQuery();
 
 	            if(usedRs.next() && usedRs.getInt(1) > 0){
 	                usedRs.close();
 	                usedStmt.close();
 	                conn.close();
+
 	                session.setAttribute("promoError", "used");
 	                return "redirect:/";
 	            }
@@ -193,16 +175,14 @@ public class AuthController {
 	            usedRs.close();
 	            usedStmt.close();
 
-	            discount =
-	            subtotal * (discountPercent / 100.0);
+	            finalPromoCode = codeInput;
+	            discount = subtotal * (promoPercent / 100.0);
 	        }
 
-	        double finalPrice =
-	        Math.round(subtotal + tax + serviceFee - discount);
+	        double finalPrice = Math.round(subtotal + tax + serviceFee - discount);
 
 	        if(bookingReference == null || bookingReference.trim().isEmpty()){
-	            bookingReference =
-	            "HDS-" + (int)(100000 + Math.random() * 900000);
+	            bookingReference = "HDS-" + (int)(100000 + Math.random() * 900000);
 	        }
 
 	        String sql =
@@ -210,8 +190,7 @@ public class AuthController {
 	        "(full_name, contact_number, email, check_in_date, check_out_date, booking_reference, room_type, guests, price, payment_method, promo_code, status) " +
 	        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
 
-	        PreparedStatement stmt =
-	        conn.prepareStatement(sql);
+	        PreparedStatement stmt = conn.prepareStatement(sql);
 
 	        stmt.setString(1, fullName);
 	        stmt.setString(2, contactNumber);
