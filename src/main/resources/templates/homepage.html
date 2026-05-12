@@ -680,6 +680,10 @@ nav{
 .modal-overlay.open{
     display:flex;
 }
+#success-modal{
+    align-items:center;
+    justify-content:center;
+}
 
 .modal{
     background:var(--dark2);
@@ -2004,20 +2008,19 @@ function confirmRealBooking(){
 
     updateBookingSummary();
 
-    const payment =
-    document.getElementById("paymentMethod").value;
-
     const room =
     document.getElementById("book-room").value;
 
-    const price =
-    document.getElementById("priceInput").value;
+    const payment =
+    document.getElementById("paymentMethod").value;
 
     const paymentError =
     document.getElementById("paymentError");
 
+    const price =
+    document.getElementById("priceInput").value;
+
     if(room === ""){
-        alert("Please select a room type.");
         return false;
     }
 
@@ -2026,18 +2029,20 @@ function confirmRealBooking(){
         return false;
     }
 
+    paymentError.style.display = "none";
+
     if(!price || Number(price) <= 0){
-        alert("Please select a valid room and date.");
         return false;
     }
 
-    paymentError.style.display = "none";
-
     const reference =
-    "HDS-" + Math.floor(100000 + Math.random() * 900000);
+    "HDS-" + Math.floor(
+        100000 + Math.random() * 900000
+    );
 
-    document.getElementById("bookingReferenceInput").value =
-    reference;
+    document.getElementById(
+        "bookingReferenceInput"
+    ).value = reference;
 
     sessionStorage.setItem(
         "latestBookingReference",
@@ -2177,40 +2182,55 @@ updatePhoneLimit();
 
 function goToReservations(){
 
-    closeModal('success-modal');
+    document.getElementById(
+        "success-modal"
+    ).classList.remove("open");
 
-    showPage('reservations');
+    document.getElementById(
+        "success-modal"
+    ).style.display = "none";
 
-    setActiveNav('nav-res');
+    showPage("reservations");
 
-    sessionStorage.removeItem(
-        "latestBookingReference"
-    );
+    setActiveNav("nav-res");
 }
-
 window.addEventListener("load", function(){
 
-    const params =
-    new URLSearchParams(window.location.search);
+    const bookingSuccess =
+    "[[${bookingSuccess}]]";
 
-    if(params.has("bookingSuccess")){
+    if(bookingSuccess === "true"){
 
         const reference =
-        sessionStorage.getItem("latestBookingReference");
+        sessionStorage.getItem(
+            "latestBookingReference"
+        );
 
-        document.getElementById("successReference").innerHTML =
-        "Booking Reference:<br><strong>" + reference + "</strong>";
+        if(reference){
 
-        openModal("success-modal");
+            const refBox =
+            document.getElementById(
+                "successReference"
+            );
 
-        window.history.replaceState({}, document.title, "/");
-    }
+            refBox.innerHTML =
+            "Booking Reference<br><strong>" +
+            reference +
+            "</strong>";
 
-    if(params.has("bookingError")){
-        alert("Booking failed. Please check database connection or console error.");
-        window.history.replaceState({}, document.title, "/");
+            closeModal("booking-modal");
+
+            document.getElementById(
+                "success-modal"
+            ).style.display = "flex";
+
+            document.getElementById(
+                "success-modal"
+            ).classList.add("open");
+        }
     }
 });
+
 </script>
 </body>
 </html>
