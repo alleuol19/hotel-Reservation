@@ -2006,19 +2006,18 @@ function updateBookingSummary(){
 
 function confirmRealBooking(){
 
+    const form = document.getElementById("bookingForm");
+
+    if(!form.checkValidity()){
+        form.reportValidity();
+        return false;
+    }
+
     updateBookingSummary();
 
-    const room =
-    document.getElementById("book-room").value;
-
-    const payment =
-    document.getElementById("paymentMethod").value;
-
-    const paymentError =
-    document.getElementById("paymentError");
-
-    const price =
-    document.getElementById("priceInput").value;
+    const room = document.getElementById("book-room").value;
+    const payment = document.getElementById("paymentMethod").value;
+    const paymentError = document.getElementById("paymentError");
 
     if(room === ""){
         return false;
@@ -2031,25 +2030,24 @@ function confirmRealBooking(){
 
     paymentError.style.display = "none";
 
-    if(!price || Number(price) <= 0){
-        return false;
-    }
-
     const reference =
-    "HDS-" + Math.floor(
-        100000 + Math.random() * 900000
-    );
+    "HDS-" + Math.floor(100000 + Math.random() * 900000);
 
-    document.getElementById(
-        "bookingReferenceInput"
-    ).value = reference;
+    document.getElementById("bookingReferenceInput").value = reference;
 
-    sessionStorage.setItem(
-        "latestBookingReference",
-        reference
-    );
+    document.getElementById("successReference").innerHTML =
+    "Booking Reference<br><strong>" + reference + "</strong>";
 
-    return true;
+    closeModal("booking-modal");
+    openModal("success-modal");
+
+    form.onsubmit = null;
+
+    setTimeout(function(){
+        form.submit();
+    }, 1500);
+
+    return false;
 }
 document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', function(e){
@@ -2181,21 +2179,15 @@ function updatePhoneLimit(){
 updatePhoneLimit();
 
 function goToReservations(){
-
-    document.getElementById(
-        "success-modal"
-    ).classList.remove("open");
-
-    document.getElementById(
-        "success-modal"
-    ).style.display = "none";
-
-    showPage("reservations");
-
-    setActiveNav("nav-res");
+    window.location.href = "/#reservations";
 }
+window.addEventListener("load", function(){
 
-
+    if(window.location.hash === "#reservations"){
+        showPage("reservations");
+        setActiveNav("nav-res");
+    }
+});
 </script>
 </body>
 </html>
