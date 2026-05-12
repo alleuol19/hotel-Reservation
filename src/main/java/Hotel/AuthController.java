@@ -176,7 +176,7 @@ public class AuthController {
 	        return "redirect:/?bookingError=true";
 	    }
 
-	    return "redirect:/?bookingSuccess=true";
+	    return "redirect:/?bookingSuccess=true&ref=" + bookingReference;
 	}
 	@PostMapping("/signup")
 	public String signup(

@@ -2013,7 +2013,7 @@ function confirmRealBooking(){
     document.getElementById("paymentError").style.display = "none";
 
     const ref =
-        "HTL-" + Math.floor(100000 + Math.random() * 900000);
+        "HDS-" + Math.floor(100000 + Math.random() * 900000);
 
     document.getElementById(
         "bookingReferenceInput"
@@ -2159,7 +2159,6 @@ function goToReservations(){
     closeModal("success-modal");
     showPage("reservations");
     setActiveNav("nav-res");
-    sessionStorage.removeItem("latestBookingReference");
 }
 
 window.addEventListener("DOMContentLoaded", function(){
@@ -2174,7 +2173,7 @@ window.addEventListener("DOMContentLoaded", function(){
     }
 
     if(params.get("bookingSuccess") === "true"){
-        const reference = sessionStorage.getItem("latestBookingReference");
+    	const reference = params.get("ref");
 
         document.getElementById("successReference").innerHTML =
             "Booking Reference:<br><strong>" + reference + "</strong>";
