@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class AuthController {
 
-	static String url = "jdbc:mysql://mysql.railway.internal:3306/railway";
+	static String url = "jdbc:mysql://root:qIOlaWsFbfipeyehbTLbiscGTAvfJyNv@tramway.proxy.rlwy.net:12964/railway";
 	static String dbUser = "root";
 	static String dbPass = "qIOlaWsFbfipeyehbTLbiscGTAvfJyNv";
 	@GetMapping("/")
@@ -167,6 +167,7 @@ public class AuthController {
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
+	        return "redirect:/?bookingError=true";
 	    }
 
 	      return "redirect:/?bookingSuccess=true";
