@@ -25,7 +25,8 @@ public class AuthController {
 	        Model model,
 	        @RequestParam(required=false) String loginError,
 	        @RequestParam(required=false) String signupError,
-	        @RequestParam(required=false) String promoError
+	        @RequestParam(required=false) String promoError,
+	        @RequestParam(required=false) String bookingSuccess
 	) {
 	    String userEmail = (String) session.getAttribute("userEmail");
 	    List<Map<String, Object>> myReservations = new ArrayList<>();
@@ -60,6 +61,10 @@ public class AuthController {
 	    model.addAttribute("loginError", loginError != null);
 	    model.addAttribute("signupError", signupError != null);
 	    model.addAttribute("promoError", promoError);
+	    model.addAttribute(
+	    	    "bookingSuccess",
+	    	    bookingSuccess != null
+	    	);
 	    return "homepage";
 	}
 	@PostMapping("/save-booking")
@@ -164,7 +169,7 @@ public class AuthController {
 	        e.printStackTrace();
 	    }
 
-	    return "redirect:/";
+	      return "redirect:/?bookingSuccess=true";
 	}
 	@PostMapping("/signup")
 	public String signup(

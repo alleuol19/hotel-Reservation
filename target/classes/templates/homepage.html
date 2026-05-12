@@ -1353,16 +1353,28 @@ footer{
 
 </div>
             <div class="form-row">
-                <div class="form-group">
-                    <label>Check-in Date</label>
-                    <input type="date" id="book-checkin" name="checkInDate" onchange="updateBookingSummary()" required>
-                </div>
 
-                <div class="form-group">
-                    <label>Check-out Date</label>
-                    <input type="date" id="book-checkout" name="checkOutDate" onchange="updateCheckoutMin();updateBookingSummary()" required>
-                </div>
-            </div>
+    <div class="form-group">
+        <label>Check-in Date</label>
+
+        <input type="date"
+               id="book-checkin"
+               name="checkInDate"
+               onchange="updateCheckoutMin();updateBookingSummary()"
+               required>
+    </div>
+
+    <div class="form-group">
+        <label>Check-out Date</label>
+
+        <input type="date"
+               id="book-checkout"
+               name="checkOutDate"
+               onchange="updateBookingSummary()"
+               required>
+    </div>
+
+</div>
 
             <div class="form-row">
 
@@ -1860,6 +1872,30 @@ function openBookingModal(roomType){
     updateBookingSummary();
     openModal('booking-modal');
 }
+function updateCheckoutMin(){
+
+    const checkIn =
+    document.getElementById("book-checkin").value;
+
+    if(!checkIn) return;
+
+    const nextDay =
+    new Date(checkIn);
+
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const formatted =
+    nextDay.toISOString().split('T')[0];
+
+    const checkout =
+    document.getElementById("book-checkout");
+
+    checkout.min = formatted;
+
+    if(checkout.value <= checkIn){
+        checkout.value = formatted;
+    }
+}
 function updateBookingSummary(){
     const roomType = document.getElementById('book-room').value;
     const checkIn = document.getElementById('book-checkin').value;
@@ -1959,11 +1995,11 @@ function updateBookingSummary(){
         				return;
         }
     }
-    else{
+
         priceInput.value = "";
         summary.style.display = "none";
     }
-}
+
 function confirmRealBooking(){
 
     updateBookingSummary();
@@ -1995,20 +2031,9 @@ function confirmRealBooking(){
 
     document.getElementById("bookingReferenceInput").value = reference;
 
-    document.getElementById("successReference").innerHTML =
-    	"Booking Reference:<br><strong>" + reference + "</strong>";
+    sessionStorage.setItem("latestBookingReference", reference);
 
-    	closeModal("booking-modal");
-    	openModal("success-modal");
-    	
-    	document.getElementById("bookingForm").onsubmit = null;
-
-    	setTimeout(() => {
-    	    document.getElementById("bookingForm").submit();
-    	}, 1200);
-
-    	return false;
-
+    return true;
 }
 document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', function(e){
@@ -2138,9 +2163,6 @@ function updatePhoneLimit(){
     phoneInput.value = "";
 }
 updatePhoneLimit();
-function goToReservations(){
-    window.location.href = "/";
-}
 const params = new URLSearchParams(window.location.search);
 
 if(params.has("loginError")){
@@ -2150,31 +2172,34 @@ if(params.has("loginError")){
 if(params.has("signupError")){
     openModal("signup-modal");
 }
-function updateCheckoutMin(){
+function goToReservations(){
 
-    const checkIn =
-    document.getElementById('book-checkin').value;
+    closeModal('success-modal');
 
-    const checkout =
-    document.getElementById('book-checkout');
+    showPage('reservations');
 
-    if(checkIn){
+    setActiveNav('nav-res');
 
-        const nextDay =
-        new Date(checkIn);
-
-        nextDay.setDate(nextDay.getDate() + 1);
-
-        checkout.min =
-        nextDay.toISOString().split('T')[0];
-
-        if(checkout.value <= checkIn){
-
-            checkout.value =
-            checkout.min;
-        }
-    }
+    sessionStorage.removeItem(
+        "latestBookingReference"
+    );
 }
+window.addEventListener("load", function(){
+
+    const params = new URLSearchParams(window.location.search);
+
+    if(params.has("bookingSuccess")){
+
+        const reference =
+        sessionStorage.getItem("latestBookingReference");
+
+        document.getElementById("successReference").innerHTML =
+        "Booking Reference:<br><strong>" + reference + "</strong>";
+
+        openModal("success-modal");
+        window.history.replaceState({}, document.title, "/");
+    }
+});
 </script>
 </body>
 </html>
