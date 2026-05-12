@@ -2003,7 +2003,6 @@ function updateBookingSummary(){
         priceInput.value = "";
         summary.style.display = "none";
     }
-
 function confirmRealBooking(){
 
     const form = document.getElementById("bookingForm");
@@ -2015,13 +2014,8 @@ function confirmRealBooking(){
 
     updateBookingSummary();
 
-    const room = document.getElementById("book-room").value;
     const payment = document.getElementById("paymentMethod").value;
     const paymentError = document.getElementById("paymentError");
-
-    if(room === ""){
-        return false;
-    }
 
     if(payment === ""){
         paymentError.style.display = "block";
@@ -2035,19 +2029,7 @@ function confirmRealBooking(){
 
     document.getElementById("bookingReferenceInput").value = reference;
 
-    document.getElementById("successReference").innerHTML =
-    "Booking Reference<br><strong>" + reference + "</strong>";
-
-    closeModal("booking-modal");
-    openModal("success-modal");
-
-    form.onsubmit = null;
-
-    setTimeout(function(){
-        form.submit();
-    }, 1500);
-
-    return false;
+    return true;
 }
 document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', function(e){
@@ -2195,6 +2177,32 @@ window.addEventListener("load", function(){
 
     if(promoError === "invalid" || promoError === "used"){
         openModal("booking-modal");
+    }
+});
+window.addEventListener("load", function(){
+
+    const bookingSuccess =
+    /*[[${bookingSuccess}]]*/ false;
+
+    const latestReference =
+    /*[[${latestBookingReference}]]*/ "";
+
+    const promoError =
+    /*[[${promoError}]]*/ "";
+
+    if(promoError === "invalid" || promoError === "used"){
+        openModal("booking-modal");
+        return;
+    }
+
+    if(bookingSuccess === true){
+
+        document.getElementById("successReference").innerHTML =
+        "Booking Reference<br><strong>" +
+        latestReference +
+        "</strong>";
+
+        openModal("success-modal");
     }
 });
 </script>
