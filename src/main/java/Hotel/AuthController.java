@@ -71,6 +71,7 @@ public class AuthController {
 	public String saveBooking(
 	        @RequestParam String fullName,
 	        @RequestParam String contactNumber,
+	        @RequestParam String email,
 	        @RequestParam String checkInDate,
 	        @RequestParam String checkOutDate,
 	        @RequestParam String bookingReference,
@@ -78,21 +79,16 @@ public class AuthController {
 	        @RequestParam int guests,
 	        @RequestParam(required=false, defaultValue="0") double price,
 	        @RequestParam String paymentMethod,
-	        @RequestParam(required=false) String promoCode,
-	        HttpSession session
+	        @RequestParam(required=false) String promoCode
 	) {
-	    String email = (String) session.getAttribute("userEmail");
-
-	    if(email == null){
-	        return "redirect:/?loginError=true";
-	    }
 
 	    if(price <= 0){
 	        return "redirect:/?bookingError=true";
 	    }
 
 	    try {
-	        Connection conn = DriverManager.getConnection(url, dbUser, dbPass);
+	        Connection conn =
+	        DriverManager.getConnection(url, dbUser, dbPass);
 
 	        String finalPromoCode = null;
 
@@ -148,11 +144,13 @@ public class AuthController {
 	            usedStmt.close();
 	        }
 
-	        String sql = "INSERT INTO booking " +
+	        String sql =
+	        "INSERT INTO booking " +
 	        "(full_name, contact_number, email, check_in_date, check_out_date, booking_reference, room_type, guests, price, payment_method, promo_code, status) " +
 	        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
 
-	        PreparedStatement stmt = conn.prepareStatement(sql);
+	        PreparedStatement stmt =
+	        conn.prepareStatement(sql);
 
 	        stmt.setString(1, fullName);
 	        stmt.setString(2, contactNumber);
@@ -176,8 +174,9 @@ public class AuthController {
 	        return "redirect:/?bookingError=true";
 	    }
 
-	    return "redirect:/?bookingSuccess=true&ref=" + bookingReference;
+	    return "redirect:/?bookingSuccess=true";
 	}
+	
 	@PostMapping("/signup")
 	public String signup(
 	        @RequestParam String firstName,
