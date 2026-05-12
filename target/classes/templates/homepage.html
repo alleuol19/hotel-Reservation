@@ -2188,6 +2188,15 @@ window.addEventListener("load", function(){
         setActiveNav("nav-res");
     }
 });
+window.addEventListener("load", function(){
+
+    const promoError =
+    /*[[${promoError}]]*/ "";
+
+    if(promoError === "invalid" || promoError === "used"){
+        openModal("booking-modal");
+    }
+});
 </script>
 </body>
 </html>

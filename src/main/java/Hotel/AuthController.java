@@ -82,6 +82,13 @@ public class AuthController {
 	    				session.removeAttribute(
 	    				    "latestBookingReference"
 	    				);
+	    				String promoErrorSession =
+	    						(String) session.getAttribute("promoError");
+
+	    						if(promoErrorSession != null){
+	    						    model.addAttribute("promoError", promoErrorSession);
+	    						    session.removeAttribute("promoError");
+	    						}
 	    return "homepage";
 	}
 	@PostMapping("/save-booking")
@@ -150,6 +157,7 @@ public class AuthController {
 	                promoRs.close();
 	                promoStmt.close();
 	                conn.close();
+	                session.setAttribute("promoError", "invalid");
 	                return "redirect:/";
 	            }
 
@@ -178,6 +186,7 @@ public class AuthController {
 	                usedRs.close();
 	                usedStmt.close();
 	                conn.close();
+	                session.setAttribute("promoError", "used");
 	                return "redirect:/";
 	            }
 
