@@ -1941,7 +1941,16 @@ function updateBookingSummary(){
         		    "GOLD30": 0.30,
         		    "FAMILY40": 0.40,
         		    "MEGA50": 0.50,
-        		    "NEWGUEST90": 0.90
+        		    "NEWGUEST90": 0.90,
+        		    "ROYAL60": 0.60,
+        		    "PARADISE65": 0.65,
+        		    "ELITE70": 0.70,
+        		    "DIAMOND75": 0.75,
+        		    "SUNSET80": 0.80,
+        		    "GOLD85": 0.85,
+        		    "PLATINUM90": 0.90,
+        		    "PRESTIGE95": 0.95,
+        		    "SOLEIL100": 0.100
         		};
 
         		let promoError =
@@ -2168,16 +2177,13 @@ function updatePhoneLimit(){
 }
 updatePhoneLimit();
 
-function goToReservations(){
-    window.location.href = "/#reservations";
+function goToReservations() {
+	closeModal("success-modal");
+	showPage("reservations");
+	setActiveNav("nav-res");
+	window.scrollTo(0,0);
 }
-window.addEventListener("load", function(){
 
-    if(window.location.hash === "#reservations"){
-        showPage("reservations");
-        setActiveNav("nav-res");
-    }
-});
 window.addEventListener("load", function(){
 
     const promoError =
@@ -2188,6 +2194,9 @@ window.addEventListener("load", function(){
     }
 });
 window.addEventListener("load", function(){
+
+    const promoError =
+    /*[[${promoError}]]*/ "";
 
     const bookingSuccess =
     /*[[${bookingSuccess}]]*/ false;
@@ -2195,17 +2204,25 @@ window.addEventListener("load", function(){
     const latestReference =
     /*[[${latestBookingReference}]]*/ "";
 
-    const promoError =
-    /*[[${promoError}]]*/ "";
-
     if(promoError === "invalid" || promoError === "used"){
+
         openModal("booking-modal");
+
+        const promoInput =
+        document.getElementById("promoCode");
+
+        if(promoInput){
+            promoInput.focus();
+        }
+
         return;
     }
 
     if(bookingSuccess === true){
 
-        document.getElementById("successReference").innerHTML =
+        document.getElementById(
+            "successReference"
+        ).innerHTML =
         "Booking Reference<br><strong>" +
         latestReference +
         "</strong>";
